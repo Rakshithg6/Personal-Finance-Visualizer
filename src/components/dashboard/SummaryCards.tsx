@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useFinance } from "@/context/FinanceContext";
 import { formatCurrency } from "@/lib/data";
@@ -21,22 +22,24 @@ export const SummaryCards: React.FC = () => {
   // Filter transactions for current month
   const currentMonthStart = startOfMonth(currentMonth);
   const currentMonthEnd = endOfMonth(currentMonth);
-  const currentMonthTransactions = Array.isArray(transactions) ? transactions.filter(
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+  
+  const currentMonthTransactions = transactionsArray.filter(
     (t) => {
       const date = new Date(t.date);
       return date >= currentMonthStart && date <= currentMonthEnd;
     }
-  ) : [];
+  );
   
   // Filter transactions for previous month
   const previousMonthStart = startOfMonth(previousMonth);
   const previousMonthEnd = endOfMonth(previousMonth);
-  const previousMonthTransactions = Array.isArray(transactions) ? transactions.filter(
+  const previousMonthTransactions = transactionsArray.filter(
     (t) => {
       const date = new Date(t.date);
       return date >= previousMonthStart && date <= previousMonthEnd;
     }
-  ) : [];
+  );
   
   // Calculate current month metrics
   const currentIncome = currentMonthTransactions
@@ -74,15 +77,15 @@ export const SummaryCards: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card className="border-purple-100 hover:shadow-lg transition-all bg-gradient-to-br from-purple-50 to-white">
+      <Card className="glass-card hover:shadow-lg transition-all">
         <CardHeader className="pb-2">
-          <CardDescription className="flex items-center text-purple-700">
+          <CardDescription className="flex items-center text-blue-400">
             <IndianRupee className="h-4 w-4 mr-1" />
             Income
           </CardDescription>
           <CardTitle className="text-success flex items-center justify-between">
             {formatCurrency(currentIncome)}
-            <div className="p-2 rounded-full bg-green-50">
+            <div className="p-2 rounded-full bg-green-900/30">
               <TrendingUp className="h-5 w-5 text-green-500" />
             </div>
           </CardTitle>
@@ -102,15 +105,15 @@ export const SummaryCards: React.FC = () => {
         </CardContent>
       </Card>
       
-      <Card className="border-purple-100 hover:shadow-lg transition-all bg-gradient-to-br from-red-50 to-white">
+      <Card className="glass-card hover:shadow-lg transition-all">
         <CardHeader className="pb-2">
-          <CardDescription className="flex items-center text-red-700">
+          <CardDescription className="flex items-center text-red-400">
             <IndianRupee className="h-4 w-4 mr-1" />
             Expenses
           </CardDescription>
           <CardTitle className="text-destructive flex items-center justify-between">
             {formatCurrency(currentExpenses)}
-            <div className="p-2 rounded-full bg-red-50">
+            <div className="p-2 rounded-full bg-red-900/30">
               <TrendingDown className="h-5 w-5 text-red-500" />
             </div>
           </CardTitle>
@@ -130,22 +133,22 @@ export const SummaryCards: React.FC = () => {
         </CardContent>
       </Card>
       
-      <Card className="border-purple-100 hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-white">
+      <Card className="glass-card hover:shadow-lg transition-all">
         <CardHeader className="pb-2">
-          <CardDescription className="flex items-center text-blue-700">
+          <CardDescription className="flex items-center text-blue-400">
             <BarChart4 className="h-4 w-4 mr-1" />
             Savings Rate
           </CardDescription>
           <CardTitle className={`flex items-center justify-between ${savingsRate >= 20 ? "text-success" : savingsRate >= 0 ? "text-amber-500" : "text-destructive"}`}>
             {savingsRate}%
-            <div className="p-2 rounded-full bg-blue-50">
+            <div className="p-2 rounded-full bg-blue-900/30">
               <Activity className="h-5 w-5 text-blue-500" />
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-sm">
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="w-full bg-gray-700 rounded-full h-2.5">
               <div 
                 className={`h-2.5 rounded-full ${
                   savingsRate >= 20 ? "bg-success" : 
@@ -164,15 +167,15 @@ export const SummaryCards: React.FC = () => {
         </CardContent>
       </Card>
       
-      <Card className="border-purple-100 hover:shadow-lg transition-all bg-gradient-to-br from-indigo-50 to-white">
+      <Card className="glass-card hover:shadow-lg transition-all">
         <CardHeader className="pb-2">
-          <CardDescription className="flex items-center text-indigo-700">
+          <CardDescription className="flex items-center text-indigo-400">
             <Wallet className="h-4 w-4 mr-1" />
             Current Balance
           </CardDescription>
           <CardTitle className={`flex items-center justify-between ${currentBalance >= 0 ? "text-success" : "text-destructive"}`}>
             {formatCurrency(currentBalance)}
-            <div className="p-2 rounded-full bg-indigo-50">
+            <div className="p-2 rounded-full bg-indigo-900/30">
               <Wallet className="h-5 w-5 text-indigo-500" />
             </div>
           </CardTitle>

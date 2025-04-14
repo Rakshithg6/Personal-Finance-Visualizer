@@ -27,7 +27,7 @@ export const RecentTransactions: React.FC = () => {
     : [];
 
   return (
-    <Card>
+    <Card className="glass-card">
       <CardHeader>
         <CardTitle>Recent Transactions</CardTitle>
         <CardDescription>Your most recent financial activity</CardDescription>
@@ -67,7 +67,7 @@ export const RecentTransactions: React.FC = () => {
         )}
       </CardContent>
       <CardFooter>
-        <Button variant="outline" className="w-full" asChild>
+        <Button variant="outline" className="w-full hover:bg-primary/20" asChild>
           <Link to="/transactions">
             View All <ArrowRight className="ml-2 h-4 w-4" />
           </Link>

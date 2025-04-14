@@ -34,7 +34,7 @@ export const CategoryList: React.FC = () => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-4 border rounded-lg shadow-sm">
+        <div className="bg-gray-800 p-4 border rounded-lg shadow-sm border-gray-700">
           <p className="font-medium">{data.name}</p>
           <p className="text-primary">{formatCurrency(data.value)}</p>
           <p className="text-sm text-muted-foreground">
@@ -48,10 +48,10 @@ export const CategoryList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Categories</h2>
+      <h2 className="text-2xl font-bold text-gradient">Spending Categories</h2>
 
       {categoryData.length === 0 ? (
-        <Card>
+        <Card className="glass-card">
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <p className="text-muted-foreground">
@@ -63,7 +63,7 @@ export const CategoryList: React.FC = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 glass-card">
             <CardHeader>
               <CardTitle className="text-lg">Expense Distribution</CardTitle>
             </CardHeader>
@@ -92,7 +92,7 @@ export const CategoryList: React.FC = () => {
           </Card>
 
           <div className="lg:col-span-3">
-            <Card>
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-lg">
                   Category Breakdown

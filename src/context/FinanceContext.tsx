@@ -1,10 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Transaction, Category, Budget } from "@/types";
-import { generateId } from "@/lib/data";
+import { generateId, categories, sampleTransactions, sampleBudgets } from "@/lib/data";
 import { format } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
-import axios from "axios";
 
 interface FinanceContextType {
   transactions: Transaction[];
@@ -39,45 +38,69 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Load data from localStorage or use sample data
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = () => {
       try {
         setIsLoading(true);
         
-        // Fetch categories first as other data depends on them
-        const categoriesResponse = await axios.get('/api/categories');
-        setCategories(categoriesResponse.data || []);
+        // Load categories from localStorage or use sample data
+        const storedCategories = localStorage.getItem('financeCategories');
+        if (storedCategories) {
+          setCategories(JSON.parse(storedCategories));
+        } else {
+          setCategories(categories);
+          localStorage.setItem('financeCategories', JSON.stringify(categories));
+        }
         
-        // Fetch transactions and budgets in parallel
-        const [transactionsResponse, budgetsResponse] = await Promise.all([
-          axios.get('/api/transactions'),
-          axios.get('/api/budgets')
-        ]);
+        // Load transactions from localStorage or use sample data
+        const storedTransactions = localStorage.getItem('financeTransactions');
+        if (storedTransactions) {
+          setTransactions(JSON.parse(storedTransactions));
+        } else {
+          setTransactions(sampleTransactions);
+          localStorage.setItem('financeTransactions', JSON.stringify(sampleTransactions));
+        }
         
-        setTransactions(transactionsResponse.data || []);
-        setBudgets(budgetsResponse.data || []);
+        // Load budgets from localStorage or use sample data
+        const storedBudgets = localStorage.getItem('financeBudgets');
+        if (storedBudgets) {
+          setBudgets(JSON.parse(storedBudgets));
+        } else {
+          setBudgets(sampleBudgets);
+          localStorage.setItem('financeBudgets', JSON.stringify(sampleBudgets));
+        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error loading data:", error);
         toast({
           title: "Error loading data",
-          description: "There was a problem loading your financial data.",
+          description: "Using sample data instead.",
           variant: "destructive"
         });
-        // Initialize with empty arrays if there's an error
-        setTransactions([]);
-        setBudgets([]);
+        
+        // Fallback to sample data
+        setCategories(categories);
+        setTransactions(sampleTransactions);
+        setBudgets(sampleBudgets);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    loadData();
   }, []);
 
   const addTransaction = async (transaction: Omit<Transaction, "id">) => {
     try {
-      const response = await axios.post('/api/transactions', transaction);
-      setTransactions((prev) => [response.data, ...prev]);
+      const newTransaction = {
+        ...transaction,
+        id: generateId(),
+      };
+      
+      const updatedTransactions = [newTransaction, ...transactions];
+      setTransactions(updatedTransactions);
+      localStorage.setItem('financeTransactions', JSON.stringify(updatedTransactions));
+      
       toast({
         title: "Transaction Added",
         description: "Your transaction has been successfully added.",
@@ -94,10 +117,13 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const editTransaction = async (transaction: Transaction) => {
     try {
-      await axios.put(`/api/transactions/${transaction.id}`, transaction);
-      setTransactions((prev) =>
-        prev.map((t) => (t.id === transaction.id ? transaction : t))
+      const updatedTransactions = transactions.map((t) => 
+        t.id === transaction.id ? transaction : t
       );
+      
+      setTransactions(updatedTransactions);
+      localStorage.setItem('financeTransactions', JSON.stringify(updatedTransactions));
+      
       toast({
         title: "Transaction Updated",
         description: "Your transaction has been successfully updated.",
@@ -114,8 +140,11 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const deleteTransaction = async (id: string) => {
     try {
-      await axios.delete(`/api/transactions/${id}`);
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      const updatedTransactions = transactions.filter((t) => t.id !== id);
+      
+      setTransactions(updatedTransactions);
+      localStorage.setItem('financeTransactions', JSON.stringify(updatedTransactions));
+      
       toast({
         title: "Transaction Deleted",
         description: "Your transaction has been successfully deleted.",
@@ -132,14 +161,20 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const addBudget = async (budget: Omit<Budget, "id">) => {
     try {
-      const response = await axios.post('/api/budgets', budget);
-      setBudgets((prev) => {
-        // Filter out any existing budget for this category and month
-        const filtered = prev.filter(
-          (b) => !(b.categoryId === budget.categoryId && b.month === budget.month)
-        );
-        return [...filtered, response.data];
-      });
+      const newBudget = {
+        ...budget,
+        id: generateId(),
+      };
+      
+      // Filter out any existing budget for this category and month
+      const filteredBudgets = budgets.filter(
+        (b) => !(b.categoryId === budget.categoryId && b.month === budget.month)
+      );
+      
+      const updatedBudgets = [...filteredBudgets, newBudget];
+      setBudgets(updatedBudgets);
+      localStorage.setItem('financeBudgets', JSON.stringify(updatedBudgets));
+      
       toast({
         title: "Budget Added",
         description: "Your budget has been successfully set.",
@@ -156,10 +191,13 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const editBudget = async (budget: Budget) => {
     try {
-      await axios.put(`/api/budgets/${budget.id}`, budget);
-      setBudgets((prev) =>
-        prev.map((b) => (b.id === budget.id ? budget : b))
+      const updatedBudgets = budgets.map((b) => 
+        b.id === budget.id ? budget : b
       );
+      
+      setBudgets(updatedBudgets);
+      localStorage.setItem('financeBudgets', JSON.stringify(updatedBudgets));
+      
       toast({
         title: "Budget Updated",
         description: "Your budget has been successfully updated.",
@@ -176,8 +214,11 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const deleteBudget = async (id: string) => {
     try {
-      await axios.delete(`/api/budgets/${id}`);
-      setBudgets((prev) => prev.filter((b) => b.id !== id));
+      const updatedBudgets = budgets.filter((b) => b.id !== id);
+      
+      setBudgets(updatedBudgets);
+      localStorage.setItem('financeBudgets', JSON.stringify(updatedBudgets));
+      
       toast({
         title: "Budget Deleted",
         description: "Your budget has been successfully deleted.",

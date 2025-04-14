@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">Financial Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6 text-gradient">Financial Dashboard</h1>
         <SummaryCards />
       </div>
 
