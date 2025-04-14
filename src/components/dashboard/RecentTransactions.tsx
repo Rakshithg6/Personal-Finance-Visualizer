@@ -27,7 +27,7 @@ export const RecentTransactions: React.FC = () => {
     : [];
 
   return (
-    <Card className="glass-card">
+    <Card className="glass-card enhanced-shadow">
       <CardHeader>
         <CardTitle>Recent Transactions</CardTitle>
         <CardDescription>Your most recent financial activity</CardDescription>
@@ -42,16 +42,16 @@ export const RecentTransactions: React.FC = () => {
             {recentTransactions.map((transaction) => {
               const category = getCategoryById(transaction.categoryId, categories);
               return (
-                <div key={transaction.id} className="flex items-center justify-between">
+                <div key={transaction.id} className="flex items-center justify-between group p-2 rounded-lg hover:bg-secondary transition-colors">
                   <div className="flex items-start space-x-4">
                     <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white mt-1"
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white mt-1 transition-transform group-hover:scale-110"
                       style={{ backgroundColor: category.color }}
                     >
                       <span className="text-xs">{category.name.substring(0, 2)}</span>
                     </div>
                     <div>
-                      <div className="font-medium">{transaction.description}</div>
+                      <div className="font-medium group-hover:text-primary transition-colors">{transaction.description}</div>
                       <div className="text-sm text-muted-foreground">
                         {format(new Date(transaction.date), "MMM dd, yyyy")}
                       </div>
@@ -67,8 +67,8 @@ export const RecentTransactions: React.FC = () => {
         )}
       </CardContent>
       <CardFooter>
-        <Button variant="outline" className="w-full hover:bg-primary/20" asChild>
-          <Link to="/transactions">
+        <Button variant="outline" className="w-full hover:bg-primary/20 transition-colors" asChild>
+          <Link to="/transactions" className="flex items-center justify-center">
             View All <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>

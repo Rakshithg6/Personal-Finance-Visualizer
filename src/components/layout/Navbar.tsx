@@ -39,15 +39,15 @@ export const Navbar = () => {
   return (
     <header 
       className={cn(
-        "sticky top-0 z-10 transition-all duration-300 backdrop-blur-lg border-b",
+        "sticky top-0 z-30 transition-all duration-300 backdrop-blur-lg border-b border-white/10",
         scrolled 
-          ? "bg-background/90 shadow-md" 
-          : "bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50"
+          ? "bg-secondary/90 shadow-md" 
+          : "bg-gradient-to-r from-[#1A1A1A] via-[#262626] to-[#1A1A1A]"
       )}
     >
       <div className="container mx-auto px-4 flex h-16 items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+          <span className="font-bold text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center">
             <Wallet className="h-8 w-8 mr-2 text-purple-500" />
             FinFlow
           </span>
@@ -62,8 +62,8 @@ export const Navbar = () => {
               className={cn(
                 "flex items-center space-x-1 px-4 py-2 rounded-full transition-colors",
                 isActive(link.path)
-                  ? "bg-purple-100 text-purple-800 font-medium"
-                  : "text-muted-foreground hover:bg-purple-50 hover:text-purple-700"
+                  ? "bg-primary/20 text-primary font-medium"
+                  : "text-muted-foreground hover:bg-secondary-foreground/10 hover:text-primary-foreground"
               )}
             >
               <span className={cn(
@@ -80,14 +80,14 @@ export const Navbar = () => {
         {/* Mobile navigation */}
         <Sheet>
           <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="text-foreground">
               <Menu className="h-6 w-6" />
               <span className="sr-only">Open menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="bg-gradient-to-b from-purple-50 to-white">
+          <SheetContent side="right" className="bg-secondary border-l border-white/10">
             <div className="flex justify-center my-8">
-              <span className="font-bold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center">
+              <span className="font-bold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center">
                 <Wallet className="h-7 w-7 mr-2 text-purple-500" />
                 FinFlow
               </span>
@@ -100,8 +100,8 @@ export const Navbar = () => {
                   className={cn(
                     "flex items-center space-x-3 text-lg p-3 rounded-xl transition-all",
                     isActive(link.path)
-                      ? "bg-purple-100 text-purple-800 font-medium shadow-sm"
-                      : "hover:bg-purple-50 hover:text-purple-700"
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-secondary-foreground/10 hover:text-primary-foreground"
                   )}
                 >
                   <span className={cn(
