@@ -54,8 +54,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           axios.get('/api/budgets')
         ]);
         
-        setTransactions(transactionsResponse.data);
-        setBudgets(budgetsResponse.data);
+        setTransactions(transactionsResponse.data || []);
+        setBudgets(budgetsResponse.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
         toast({
@@ -63,6 +63,9 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           description: "There was a problem loading your financial data.",
           variant: "destructive"
         });
+        // Initialize with empty arrays if there's an error
+        setTransactions([]);
+        setBudgets([]);
       } finally {
         setIsLoading(false);
       }

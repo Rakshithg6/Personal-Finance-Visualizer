@@ -14,18 +14,18 @@ import {
 } from "@/components/ui/card";
 
 export const BudgetComparisonChart: React.FC = () => {
-  const { transactions, budgets } = useFinance();
+  const { transactions, budgets, categories } = useFinance();
   const currentMonth = format(new Date(), "yyyy-MM");
   
   // Filter transactions for current month
-  const monthTransactions = transactions.filter((transaction) => {
+  const monthTransactions = Array.isArray(transactions) ? transactions.filter((transaction) => {
     const transactionDate = new Date(transaction.date);
     const transactionMonth = format(transactionDate, "yyyy-MM");
     return transactionMonth === currentMonth;
-  });
+  }) : [];
 
   // Get current month budgets
-  const currentBudgets = budgets.filter((budget) => budget.month === currentMonth);
+  const currentBudgets = Array.isArray(budgets) ? budgets.filter((budget) => budget.month === currentMonth) : [];
 
   if (currentBudgets.length === 0) {
     return (
@@ -45,7 +45,7 @@ export const BudgetComparisonChart: React.FC = () => {
 
   // Prepare data for chart
   const chartData = currentBudgets.map((budget) => {
-    const category = getCategoryById(budget.categoryId);
+    const category = getCategoryById(budget.categoryId, categories);
     const spent = getCategoryTotal(budget.categoryId, monthTransactions);
     const remaining = budget.amount - spent;
     
@@ -95,7 +95,7 @@ export const BudgetComparisonChart: React.FC = () => {
               layout="vertical"
             >
               <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-              <XAxis type="number" tickFormatter={(value) => `$${value}`} />
+              <XAxis type="number" tickFormatter={(value) => `₹${value}`} />
               <YAxis type="category" dataKey="name" width={100} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="spent" name="Spent" stackId="a" fill="#f87171" />

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { Edit, Trash2, Plus, Search } from "lucide-react";
@@ -36,7 +35,7 @@ import {
 import { TransactionForm } from "./TransactionForm";
 
 export const TransactionList: React.FC = () => {
-  const { transactions, deleteTransaction } = useFinance();
+  const { transactions, categories, deleteTransaction } = useFinance();
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
@@ -70,15 +69,15 @@ export const TransactionList: React.FC = () => {
     setAlertDialogOpen(false);
   };
 
-  const filteredTransactions = transactions.filter((transaction) => {
+  const filteredTransactions = Array.isArray(transactions) ? transactions.filter((transaction) => {
     const searchLower = searchQuery.toLowerCase();
-    const category = getCategoryById(transaction.categoryId);
+    const category = getCategoryById(transaction.categoryId, categories);
     return (
       transaction.description.toLowerCase().includes(searchLower) ||
       category.name.toLowerCase().includes(searchLower) ||
       formatCurrency(transaction.amount).includes(searchQuery)
     );
-  });
+  }) : [];
 
   // Sort transactions by date (newest first)
   const sortedTransactions = [...filteredTransactions].sort((a, b) => 
@@ -132,7 +131,7 @@ export const TransactionList: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {sortedTransactions.map((transaction) => {
-                  const category = getCategoryById(transaction.categoryId);
+                  const category = getCategoryById(transaction.categoryId, categories);
                   return (
                     <TableRow key={transaction.id}>
                       <TableCell>

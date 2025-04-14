@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   BarChart,
@@ -30,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const MonthlyExpensesChart: React.FC = () => {
   const { transactions } = useFinance();
@@ -53,10 +51,10 @@ export const MonthlyExpensesChart: React.FC = () => {
     const end = endOfMonth(month.date);
 
     // Filter transactions for this month
-    const monthTransactions = transactions.filter((t) => {
+    const monthTransactions = Array.isArray(transactions) ? transactions.filter((t) => {
       const date = new Date(t.date);
       return date >= start && date <= end;
-    });
+    }) : [];
 
     // Calculate total income and expenses
     const income = monthTransactions

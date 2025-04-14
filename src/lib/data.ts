@@ -140,11 +140,13 @@ export const sampleBudgets: Budget[] = [
 ];
 
 // Helper functions
-export const getCategoryById = (id: string, categories: Category[]): Category => {
-  return categories.find((cat) => cat.id === id) || categories[categories.length - 1];
+export const getCategoryById = (id: string, categoriesArray: Category[] = categories): Category => {
+  return categoriesArray.find((cat) => cat.id === id) || categoriesArray[categoriesArray.length - 1];
 };
 
 export const getMonthlyTransactions = (date: Date = new Date(), transactions: Transaction[] = []): Transaction[] => {
+  if (!Array.isArray(transactions)) return [];
+  
   const start = startOfMonth(date).getTime();
   const end = endOfMonth(date).getTime();
   
@@ -155,12 +157,16 @@ export const getMonthlyTransactions = (date: Date = new Date(), transactions: Tr
 };
 
 export const getCategoryTotal = (categoryId: string, transactions: Transaction[] = []): number => {
+  if (!Array.isArray(transactions)) return 0;
+  
   return transactions
     .filter((t) => t.categoryId === categoryId)
     .reduce((sum, t) => sum + (t.amount < 0 ? Math.abs(t.amount) : 0), 0);
 };
 
 export const getBudgetByCategory = (categoryId: string, month: string, budgets: Budget[] = []): Budget | undefined => {
+  if (!Array.isArray(budgets)) return undefined;
+  
   return budgets.find((b) => b.categoryId === categoryId && b.month === month);
 };
 

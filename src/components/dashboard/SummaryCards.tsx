@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useFinance } from "@/context/FinanceContext";
 import { formatCurrency } from "@/lib/data";
@@ -22,22 +21,22 @@ export const SummaryCards: React.FC = () => {
   // Filter transactions for current month
   const currentMonthStart = startOfMonth(currentMonth);
   const currentMonthEnd = endOfMonth(currentMonth);
-  const currentMonthTransactions = transactions.filter(
+  const currentMonthTransactions = Array.isArray(transactions) ? transactions.filter(
     (t) => {
       const date = new Date(t.date);
       return date >= currentMonthStart && date <= currentMonthEnd;
     }
-  );
+  ) : [];
   
   // Filter transactions for previous month
   const previousMonthStart = startOfMonth(previousMonth);
   const previousMonthEnd = endOfMonth(previousMonth);
-  const previousMonthTransactions = transactions.filter(
+  const previousMonthTransactions = Array.isArray(transactions) ? transactions.filter(
     (t) => {
       const date = new Date(t.date);
       return date >= previousMonthStart && date <= previousMonthEnd;
     }
-  );
+  ) : [];
   
   // Calculate current month metrics
   const currentIncome = currentMonthTransactions
@@ -72,7 +71,7 @@ export const SummaryCards: React.FC = () => {
   const savingsRate = currentIncome > 0 
     ? Math.round((currentBalance / currentIncome) * 100) 
     : 0;
-  
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="border-purple-100 hover:shadow-lg transition-all bg-gradient-to-br from-purple-50 to-white">
