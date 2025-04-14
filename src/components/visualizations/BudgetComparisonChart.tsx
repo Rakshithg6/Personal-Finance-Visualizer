@@ -17,15 +17,20 @@ export const BudgetComparisonChart: React.FC = () => {
   const { transactions, budgets, categories } = useFinance();
   const currentMonth = format(new Date(), "yyyy-MM");
   
+  // Ensure transactions is an array
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+  const budgetsArray = Array.isArray(budgets) ? budgets : [];
+  const categoriesArray = Array.isArray(categories) ? categories : [];
+  
   // Filter transactions for current month
-  const monthTransactions = Array.isArray(transactions) ? transactions.filter((transaction) => {
+  const monthTransactions = transactionsArray.filter((transaction) => {
     const transactionDate = new Date(transaction.date);
     const transactionMonth = format(transactionDate, "yyyy-MM");
     return transactionMonth === currentMonth;
-  }) : [];
+  });
 
   // Get current month budgets
-  const currentBudgets = Array.isArray(budgets) ? budgets.filter((budget) => budget.month === currentMonth) : [];
+  const currentBudgets = budgetsArray.filter((budget) => budget.month === currentMonth);
 
   if (currentBudgets.length === 0) {
     return (
@@ -45,7 +50,7 @@ export const BudgetComparisonChart: React.FC = () => {
 
   // Prepare data for chart
   const chartData = currentBudgets.map((budget) => {
-    const category = getCategoryById(budget.categoryId, categories);
+    const category = getCategoryById(budget.categoryId, categoriesArray);
     const spent = getCategoryTotal(budget.categoryId, monthTransactions);
     const remaining = budget.amount - spent;
     

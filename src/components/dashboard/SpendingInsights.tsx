@@ -14,11 +14,15 @@ import {
 } from "@/components/ui/card";
 
 export const SpendingInsights: React.FC = () => {
-  const { transactions, budgets } = useFinance();
+  const { transactions, budgets, categories } = useFinance();
   const currentMonth = format(new Date(), "yyyy-MM");
   
+  // Ensure transactions is an array
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+  const budgetsArray = Array.isArray(budgets) ? budgets : [];
+  
   // Filter transactions for current month
-  const currentMonthTransactions = transactions.filter((t) => {
+  const currentMonthTransactions = transactionsArray.filter((t) => {
     const date = new Date(t.date);
     return format(date, "yyyy-MM") === currentMonth;
   });
@@ -27,10 +31,12 @@ export const SpendingInsights: React.FC = () => {
   const expenses = currentMonthTransactions.filter((t) => t.amount < 0);
   
   // Get current month budgets
-  const currentBudgets = budgets.filter((b) => b.month === currentMonth);
+  const currentBudgets = budgetsArray.filter((b) => b.month === currentMonth);
   
   // Find largest expense
-  const largestExpense = [...expenses].sort((a, b) => a.amount - b.amount)[0];
+  const largestExpense = expenses.length > 0 
+    ? [...expenses].sort((a, b) => a.amount - b.amount)[0]
+    : null;
   
   // Find highest spending category
   const categoryExpenses = new Map();
@@ -58,9 +64,9 @@ export const SpendingInsights: React.FC = () => {
     (t) => new Date(t.date) >= lastWeekStart
   );
   
-  const averageDailySpending = lastWeekTransactions.reduce(
-    (sum, t) => sum + Math.abs(t.amount), 0
-  ) / 7;
+  const averageDailySpending = lastWeekTransactions.length > 0
+    ? lastWeekTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0) / 7
+    : 0;
   
   // Check if any daily spending was 2x the average
   const hasUnusualSpending = lastWeekTransactions.some((t) => {
@@ -103,7 +109,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium">Highest spending category</h3>
                   <p className="text-sm text-muted-foreground">
-                    {getCategoryById(highestCategory.id).name} - {formatCurrency(highestCategory.amount)} this month
+                    {getCategoryById(highestCategory.id, categories).name} - {formatCurrency(highestCategory.amount)} this month
                   </p>
                 </div>
               </div>
@@ -117,7 +123,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium">Budget alerts</h3>
                   <p className="text-sm text-muted-foreground">
-                    {categoriesOverBudget.length} {categoriesOverBudget.length === 1 ? 'category' : 'categories'} over budget: {categoriesOverBudget.map(b => getCategoryById(b.categoryId).name).join(', ')}
+                    {categoriesOverBudget.length} {categoriesOverBudget.length === 1 ? 'category' : 'categories'} over budget: {categoriesOverBudget.map(b => getCategoryById(b.categoryId, categories).name).join(', ')}
                   </p>
                 </div>
               </div>

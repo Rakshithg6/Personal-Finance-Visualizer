@@ -17,12 +17,14 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const RecentTransactions: React.FC = () => {
-  const { transactions } = useFinance();
+  const { transactions, categories } = useFinance();
 
   // Sort transactions by date (newest first) and take the most recent 5
-  const recentTransactions = [...transactions]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+  const recentTransactions = Array.isArray(transactions) 
+    ? [...transactions]
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5)
+    : [];
 
   return (
     <Card>
@@ -38,7 +40,7 @@ export const RecentTransactions: React.FC = () => {
         ) : (
           <div className="space-y-4">
             {recentTransactions.map((transaction) => {
-              const category = getCategoryById(transaction.categoryId);
+              const category = getCategoryById(transaction.categoryId, categories);
               return (
                 <div key={transaction.id} className="flex items-center justify-between">
                   <div className="flex items-start space-x-4">

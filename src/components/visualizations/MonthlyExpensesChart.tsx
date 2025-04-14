@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   BarChart,
@@ -35,6 +36,9 @@ export const MonthlyExpensesChart: React.FC = () => {
   const [timeRange, setTimeRange] = useState<number>(6); // Default to 6 months
   const [viewType, setViewType] = useState<string>("bar"); // Default to bar chart
 
+  // Ensure transactions is an array
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+
   // Generate month range
   const monthRange = Array.from({ length: timeRange }).map((_, i) => {
     const month = subMonths(new Date(), i);
@@ -51,10 +55,10 @@ export const MonthlyExpensesChart: React.FC = () => {
     const end = endOfMonth(month.date);
 
     // Filter transactions for this month
-    const monthTransactions = Array.isArray(transactions) ? transactions.filter((t) => {
+    const monthTransactions = transactionsArray.filter((t) => {
       const date = new Date(t.date);
       return date >= start && date <= end;
-    }) : [];
+    });
 
     // Calculate total income and expenses
     const income = monthTransactions

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useFinance } from "@/context/FinanceContext";
@@ -16,11 +17,15 @@ export const CategoryPieChart: React.FC = () => {
   const { transactions, categories } = useFinance();
   const [viewType, setViewType] = useState<string>("pie");
   
+  // Ensure categories and transactions are arrays
+  const categoriesArray = Array.isArray(categories) ? categories : [];
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+  
   // Calculate totals for each category (only expenses)
-  const categoryData = Array.isArray(categories) ? categories
+  const categoryData = categoriesArray
     .filter(category => category.id !== "10") // Filter out income category
     .map((category) => {
-      const amount = getCategoryTotal(category.id, transactions);
+      const amount = getCategoryTotal(category.id, transactionsArray);
       return {
         id: category.id,
         name: category.name,
@@ -29,7 +34,7 @@ export const CategoryPieChart: React.FC = () => {
       };
     })
     .filter((item) => item.value > 0) // Only include categories with expenses
-    .sort((a, b) => b.value - a.value) : []; // Sort by highest amount
+    .sort((a, b) => b.value - a.value); // Sort by highest amount
 
   const totalExpenses = categoryData.reduce((sum, item) => sum + item.value, 0);
 

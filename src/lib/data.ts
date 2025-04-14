@@ -141,7 +141,8 @@ export const sampleBudgets: Budget[] = [
 
 // Helper functions
 export const getCategoryById = (id: string, categoriesArray: Category[] = categories): Category => {
-  return categoriesArray.find((cat) => cat.id === id) || categoriesArray[categoriesArray.length - 1];
+  const categoryArray = Array.isArray(categoriesArray) ? categoriesArray : categories;
+  return categoryArray.find((cat) => cat.id === id) || categories[categories.length - 1];
 };
 
 export const getMonthlyTransactions = (date: Date = new Date(), transactions: Transaction[] = []): Transaction[] => {

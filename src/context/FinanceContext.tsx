@@ -46,7 +46,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         
         // Fetch categories first as other data depends on them
         const categoriesResponse = await axios.get('/api/categories');
-        setCategories(categoriesResponse.data);
+        setCategories(categoriesResponse.data || []);
         
         // Fetch transactions and budgets in parallel
         const [transactionsResponse, budgetsResponse] = await Promise.all([
