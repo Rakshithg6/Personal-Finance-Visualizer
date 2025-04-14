@@ -21,105 +21,105 @@ export const categories: Category[] = [
 export const sampleTransactions: Transaction[] = [
   {
     id: "t1",
-    amount: -45.99,
+    amount: -2500,
     date: subDays(new Date(), 2).toISOString(),
     description: "Grocery Shopping",
     categoryId: "1",
   },
   {
     id: "t2",
-    amount: -25.50,
+    amount: -1800,
     date: subDays(new Date(), 4).toISOString(),
     description: "Gas Station",
     categoryId: "2",
   },
   {
     id: "t3",
-    amount: -1200.00,
+    amount: -18000,
     date: startOfMonth(new Date()).toISOString(),
     description: "Monthly Rent",
     categoryId: "3",
   },
   {
     id: "t4",
-    amount: -18.50,
+    amount: -800,
     date: subDays(new Date(), 6).toISOString(),
     description: "Movie Tickets",
     categoryId: "4",
   },
   {
     id: "t5",
-    amount: -89.99,
+    amount: -3000,
     date: subDays(new Date(), 10).toISOString(),
     description: "New Shirt and Pants",
     categoryId: "5",
   },
   {
     id: "t6",
-    amount: -120.00,
+    amount: -2500,
     date: subDays(new Date(), 15).toISOString(),
     description: "Doctor's Visit",
     categoryId: "6",
   },
   {
     id: "t7",
-    amount: -35.00,
+    amount: -800,
     date: subDays(new Date(), 8).toISOString(),
     description: "Haircut",
     categoryId: "7",
   },
   {
     id: "t8",
-    amount: -299.99,
+    amount: -15000,
     date: subDays(new Date(), 20).toISOString(),
     description: "Online Course",
     categoryId: "8",
   },
   {
     id: "t9",
-    amount: -500.00,
+    amount: -20000,
     date: subDays(new Date(), 25).toISOString(),
     description: "Stock Purchase",
     categoryId: "9",
   },
   {
     id: "t10",
-    amount: 3000.00,
+    amount: 50000,
     date: startOfMonth(new Date()).toISOString(),
     description: "Salary",
     categoryId: "10",
   },
   {
     id: "t11",
-    amount: -15.99,
+    amount: -300,
     date: subDays(new Date(), 3).toISOString(),
     description: "Lunch",
     categoryId: "1",
   },
   {
     id: "t12",
-    amount: -49.99,
+    amount: -1200,
     date: subDays(new Date(), 7).toISOString(),
     description: "Tank of Gas",
     categoryId: "2",
   },
   {
     id: "t13",
-    amount: -9.99,
+    amount: -500,
     date: subDays(new Date(), 5).toISOString(),
     description: "Netflix Subscription",
     categoryId: "4",
   },
   {
     id: "t14",
-    amount: -129.99,
+    amount: -4500,
     date: subDays(new Date(), 12).toISOString(),
     description: "Running Shoes",
     categoryId: "5",
   },
   {
     id: "t15",
-    amount: -22.50,
+    amount: -800,
     date: subDays(new Date(), 9).toISOString(),
     description: "Vitamins",
     categoryId: "6",
@@ -128,47 +128,48 @@ export const sampleTransactions: Transaction[] = [
 
 // Sample budget data
 export const sampleBudgets: Budget[] = [
-  { id: "b1", categoryId: "1", amount: 500, month: format(new Date(), "yyyy-MM") },
-  { id: "b2", categoryId: "2", amount: 200, month: format(new Date(), "yyyy-MM") },
-  { id: "b3", categoryId: "3", amount: 1500, month: format(new Date(), "yyyy-MM") },
-  { id: "b4", categoryId: "4", amount: 150, month: format(new Date(), "yyyy-MM") },
-  { id: "b5", categoryId: "5", amount: 300, month: format(new Date(), "yyyy-MM") },
-  { id: "b6", categoryId: "6", amount: 200, month: format(new Date(), "yyyy-MM") },
-  { id: "b7", categoryId: "7", amount: 100, month: format(new Date(), "yyyy-MM") },
-  { id: "b8", categoryId: "8", amount: 300, month: format(new Date(), "yyyy-MM") },
-  { id: "b9", categoryId: "9", amount: 500, month: format(new Date(), "yyyy-MM") },
+  { id: "b1", categoryId: "1", amount: 8000, month: format(new Date(), "yyyy-MM") },
+  { id: "b2", categoryId: "2", amount: 5000, month: format(new Date(), "yyyy-MM") },
+  { id: "b3", categoryId: "3", amount: 20000, month: format(new Date(), "yyyy-MM") },
+  { id: "b4", categoryId: "4", amount: 3000, month: format(new Date(), "yyyy-MM") },
+  { id: "b5", categoryId: "5", amount: 5000, month: format(new Date(), "yyyy-MM") },
+  { id: "b6", categoryId: "6", amount: 3000, month: format(new Date(), "yyyy-MM") },
+  { id: "b7", categoryId: "7", amount: 2000, month: format(new Date(), "yyyy-MM") },
+  { id: "b8", categoryId: "8", amount: 5000, month: format(new Date(), "yyyy-MM") },
+  { id: "b9", categoryId: "9", amount: 10000, month: format(new Date(), "yyyy-MM") },
 ];
 
 // Helper functions
-export const getCategoryById = (id: string): Category => {
+export const getCategoryById = (id: string, categories: Category[]): Category => {
   return categories.find((cat) => cat.id === id) || categories[categories.length - 1];
 };
 
-export const getMonthlyTransactions = (date: Date = new Date()): Transaction[] => {
+export const getMonthlyTransactions = (date: Date = new Date(), transactions: Transaction[] = []): Transaction[] => {
   const start = startOfMonth(date).getTime();
   const end = endOfMonth(date).getTime();
   
-  return sampleTransactions.filter((transaction) => {
+  return transactions.filter((transaction) => {
     const transactionTime = new Date(transaction.date).getTime();
     return transactionTime >= start && transactionTime <= end;
   });
 };
 
-export const getCategoryTotal = (categoryId: string, transactions: Transaction[] = sampleTransactions): number => {
+export const getCategoryTotal = (categoryId: string, transactions: Transaction[] = []): number => {
   return transactions
     .filter((t) => t.categoryId === categoryId)
     .reduce((sum, t) => sum + (t.amount < 0 ? Math.abs(t.amount) : 0), 0);
 };
 
-export const getBudgetByCategory = (categoryId: string, month: string): Budget | undefined => {
-  return sampleBudgets.find((b) => b.categoryId === categoryId && b.month === month);
+export const getBudgetByCategory = (categoryId: string, month: string, budgets: Budget[] = []): Budget | undefined => {
+  return budgets.find((b) => b.categoryId === categoryId && b.month === month);
 };
 
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(amount);
 };
 
