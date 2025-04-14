@@ -84,7 +84,7 @@ export const MonthlyExpensesChart: React.FC = () => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white dark:bg-gray-800 p-4 border rounded-lg shadow-sm">
+        <div className="bg-gray-800 p-4 border rounded-lg shadow-sm border-gray-700">
           <p className="font-medium">{label}</p>
           {payload.map((entry: any) => (
             <p
@@ -107,21 +107,21 @@ export const MonthlyExpensesChart: React.FC = () => {
   };
 
   return (
-    <Card className="shadow-lg border-purple-100">
-      <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 rounded-t-lg">
+    <Card className="shadow-lg border-purple-900/50">
+      <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-t-lg">
         <div>
-          <CardTitle className="text-lg font-bold text-purple-900">Monthly Financial Overview</CardTitle>
-          <CardDescription>Income, Expenses, and Savings over time</CardDescription>
+          <CardTitle className="text-lg font-bold text-white">Monthly Financial Overview</CardTitle>
+          <CardDescription className="text-gray-300">Income, Expenses, and Savings over time</CardDescription>
         </div>
         <div className="flex gap-2">
           <Select
             value={timeRange.toString()}
             onValueChange={(value) => setTimeRange(parseInt(value))}
           >
-            <SelectTrigger className="w-[100px] bg-white border-purple-200">
+            <SelectTrigger className="w-[130px] bg-gray-800 border-gray-600 text-white">
               <SelectValue placeholder="Select range" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-800 border-gray-700 text-white">
               <SelectItem value="3">3 months</SelectItem>
               <SelectItem value="6">6 months</SelectItem>
               <SelectItem value="12">12 months</SelectItem>
@@ -132,10 +132,10 @@ export const MonthlyExpensesChart: React.FC = () => {
             value={viewType}
             onValueChange={setViewType}
           >
-            <SelectTrigger className="w-[100px] bg-white border-purple-200">
+            <SelectTrigger className="w-[130px] bg-gray-800 border-gray-600 text-white">
               <SelectValue placeholder="Chart type" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-800 border-gray-700 text-white">
               <SelectItem value="bar">Bar Chart</SelectItem>
               <SelectItem value="line">Line Chart</SelectItem>
               <SelectItem value="composed">Combined</SelectItem>
@@ -143,7 +143,7 @@ export const MonthlyExpensesChart: React.FC = () => {
           </Select>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="bg-gray-900">
         <div className="h-[350px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
             {viewType === "bar" ? (
@@ -156,10 +156,11 @@ export const MonthlyExpensesChart: React.FC = () => {
                   bottom: 5,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                <XAxis dataKey="name" stroke="#aaa" />
                 <YAxis 
                   tickFormatter={(value) => `₹${value/1000}k`}
+                  stroke="#aaa"
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
@@ -192,10 +193,11 @@ export const MonthlyExpensesChart: React.FC = () => {
                   bottom: 5,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                <XAxis dataKey="name" stroke="#aaa" />
                 <YAxis 
                   tickFormatter={(value) => `₹${value/1000}k`}
+                  stroke="#aaa"
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
@@ -237,10 +239,11 @@ export const MonthlyExpensesChart: React.FC = () => {
                   bottom: 5,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                <XAxis dataKey="name" stroke="#aaa" />
                 <YAxis 
                   tickFormatter={(value) => `₹${value/1000}k`}
+                  stroke="#aaa"
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
@@ -278,6 +281,7 @@ export const MonthlyExpensesChart: React.FC = () => {
                   yAxisId={1}
                   orientation="right"
                   tickFormatter={(value) => `${value}%`}
+                  stroke="#aaa"
                 />
               </ComposedChart>
             )}

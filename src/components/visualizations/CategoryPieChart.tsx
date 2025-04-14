@@ -42,7 +42,7 @@ export const CategoryPieChart: React.FC = () => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white dark:bg-gray-800 p-4 border rounded-lg shadow-sm">
+        <div className="bg-gray-800 p-4 border rounded-lg shadow-sm border-gray-700">
           <p className="font-medium">{data.name}</p>
           <p className="text-primary">{formatCurrency(data.value)}</p>
           <p className="text-sm text-muted-foreground">
@@ -59,23 +59,23 @@ export const CategoryPieChart: React.FC = () => {
   };
 
   return (
-    <Card className="shadow-lg border-purple-100">
-      <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-t-lg">
+    <Card className="shadow-lg border-purple-900/50">
+      <CardHeader className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 rounded-t-lg">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-lg font-bold text-purple-900">Spending by Category</CardTitle>
-            <CardDescription>Top spending categories breakdown</CardDescription>
+            <CardTitle className="text-lg font-bold text-white">Spending by Category</CardTitle>
+            <CardDescription className="text-gray-300">Top spending categories breakdown</CardDescription>
           </div>
           <Tabs value={viewType} onValueChange={setViewType} className="w-[280px]">
-            <TabsList className="bg-white border border-purple-100">
-              <TabsTrigger value="pie" className="data-[state=active]:bg-purple-100">Pie Chart</TabsTrigger>
-              <TabsTrigger value="donut" className="data-[state=active]:bg-purple-100">Donut Chart</TabsTrigger>
-              <TabsTrigger value="list" className="data-[state=active]:bg-purple-100">List View</TabsTrigger>
+            <TabsList className="bg-gray-800 border border-gray-600">
+              <TabsTrigger value="pie" className="data-[state=active]:bg-purple-900 text-white">Pie Chart</TabsTrigger>
+              <TabsTrigger value="donut" className="data-[state=active]:bg-purple-900 text-white">Donut Chart</TabsTrigger>
+              <TabsTrigger value="list" className="data-[state=active]:bg-purple-900 text-white">List View</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="bg-gray-900">
         {categoryData.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-muted-foreground">No spending data available</p>
@@ -105,7 +105,7 @@ export const CategoryPieChart: React.FC = () => {
                       verticalAlign="bottom"
                       align="center" 
                       formatter={(value, entry, index) => (
-                        <span className="text-sm font-medium">{value}</span>
+                        <span className="text-sm font-medium text-gray-300">{value}</span>
                       )}
                     />
                   </PieChart>
@@ -137,7 +137,7 @@ export const CategoryPieChart: React.FC = () => {
                       verticalAlign="middle"
                       align="right" 
                       formatter={(value, entry, index) => (
-                        <span className="text-sm font-medium">{value}</span>
+                        <span className="text-sm font-medium text-gray-300">{value}</span>
                       )}
                     />
                   </PieChart>
@@ -150,18 +150,18 @@ export const CategoryPieChart: React.FC = () => {
                 {categoryData.map((category) => (
                   <div 
                     key={category.id} 
-                    className="flex justify-between items-center p-3 rounded-lg bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all"
+                    className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
                   >
                     <div className="flex items-center space-x-3">
                       <div 
                         className="w-4 h-4 rounded-full" 
                         style={{ backgroundColor: category.color }}
                       ></div>
-                      <span className="font-medium">{category.name}</span>
+                      <span className="font-medium text-white">{category.name}</span>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="font-semibold text-purple-800">{formatCurrency(category.value)}</span>
-                      <span className="text-xs text-gray-500">
+                      <span className="font-semibold text-purple-300">{formatCurrency(category.value)}</span>
+                      <span className="text-xs text-gray-400">
                         {Math.round((category.value / totalExpenses) * 100)}% of total
                       </span>
                     </div>

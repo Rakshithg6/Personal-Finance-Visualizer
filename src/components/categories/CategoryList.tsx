@@ -64,8 +64,8 @@ export const CategoryList: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <Card className="lg:col-span-2 glass-card">
-            <CardHeader>
-              <CardTitle className="text-lg">Expense Distribution</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 rounded-t-lg">
+              <CardTitle className="text-lg text-white">Expense Distribution</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
@@ -93,8 +93,8 @@ export const CategoryList: React.FC = () => {
 
           <div className="lg:col-span-3">
             <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="text-lg">
+              <CardHeader className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 rounded-t-lg">
+                <CardTitle className="text-lg text-white">
                   Category Breakdown
                 </CardTitle>
               </CardHeader>
@@ -103,7 +103,7 @@ export const CategoryList: React.FC = () => {
                   {categoryData.map((category) => (
                     <div
                       key={category.id}
-                      className="flex justify-between items-center"
+                      className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
                     >
                       <div className="flex items-center">
                         <div
