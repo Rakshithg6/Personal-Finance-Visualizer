@@ -53,8 +53,13 @@ export const BudgetList: React.FC = () => {
   );
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
 
+  // Ensure transactions is an array
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+  const budgetsArray = Array.isArray(budgets) ? budgets : [];
+  const categoriesArray = Array.isArray(categories) ? categories : [];
+
   // Filter transactions for the selected month
-  const monthTransactions = transactions.filter((transaction) => {
+  const monthTransactions = transactionsArray.filter((transaction) => {
     const transactionDate = new Date(transaction.date);
     const transactionMonth = format(transactionDate, "yyyy-MM");
     return transactionMonth === selectedMonth;
@@ -71,12 +76,12 @@ export const BudgetList: React.FC = () => {
   }
 
   // Get the current month budgets
-  const currentBudgets = budgets.filter(
+  const currentBudgets = budgetsArray.filter(
     (budget) => budget.month === selectedMonth
   );
 
   // Calculation for the budget comparison chart
-  const budgetData = categories
+  const budgetData = categoriesArray
     .filter((category) => category.id !== "10") // Exclude the Income category
     .map((category) => {
       const budget = currentBudgets.find(
@@ -211,12 +216,9 @@ export const BudgetList: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Progress
-                    value={item.percentage}
-                    className={`h-2 ${
-                      item.overBudget ? "bg-destructive/20" : ""
-                    }`}
-                    indicatorClassName={item.overBudget ? "bg-destructive" : ""}
+                  <Progress 
+                    value={item.percentage} 
+                    className={item.overBudget ? "bg-destructive/20" : ""}
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <div>

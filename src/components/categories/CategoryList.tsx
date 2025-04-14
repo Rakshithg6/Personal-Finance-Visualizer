@@ -9,11 +9,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const CategoryList: React.FC = () => {
   const { categories, transactions } = useFinance();
+  
+  // Ensure categories and transactions are arrays
+  const categoriesArray = Array.isArray(categories) ? categories : [];
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
 
   // Calculate totals for each category
-  const categoryData = categories
+  const categoryData = categoriesArray
     .map((category) => {
-      const amount = getCategoryTotal(category.id, transactions);
+      const amount = getCategoryTotal(category.id, transactionsArray);
       return {
         id: category.id,
         name: category.name,
