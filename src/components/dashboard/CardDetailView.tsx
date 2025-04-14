@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Dialog, 
@@ -22,8 +21,10 @@ import {
   Activity,
   Info,
   Calendar,
-  DollarSign
+  DollarSign,
+  PieChart as PieChartIcon
 } from "lucide-react";
+import { PieChart, Pie, Cell } from "recharts";
 
 type CardDetailProps = {
   open: boolean;
@@ -185,7 +186,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
             {/* Top Expense Categories */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium flex items-center">
-                <PieChart className="mr-2 h-5 w-5 text-muted-foreground" />
+                <PieChartIcon className="mr-2 h-5 w-5 text-muted-foreground" />
                 Top Expense Categories
               </h3>
               <div className="space-y-3">
