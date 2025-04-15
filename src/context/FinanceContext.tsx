@@ -197,7 +197,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const deleteBudget = async (id: string) => {
     try {
-      await fetch(`http://localhost:5000/api/budgets/${id}`, { method: 'DELETE' });
+      await fetch(`${import.meta.env.VITE_API_URL}/api/budgets/${id}`, { method: 'DELETE' });
       setBudgets(budgets.filter(b => b.id !== id));
       toast({
         title: 'Budget Deleted',
