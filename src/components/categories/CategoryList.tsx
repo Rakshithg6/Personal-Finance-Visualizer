@@ -62,7 +62,7 @@ export const CategoryList: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gradient">Spending Categories</h2>
-        <Tabs value={viewType} onValueChange={setViewType} className="w-[280px]">
+        <Tabs defaultValue={viewType} onValueChange={setViewType} className="w-[280px]">
           <TabsList className="bg-gray-800 border border-gray-600">
             <TabsTrigger value="pie" className="data-[state=active]:bg-purple-900 text-white">Pie Chart</TabsTrigger>
             <TabsTrigger value="donut" className="data-[state=active]:bg-purple-900 text-white">Donut Chart</TabsTrigger>
@@ -73,8 +73,8 @@ export const CategoryList: React.FC = () => {
 
       <Card className="glass-card">
         <CardContent className="pt-6">
-          <TabsContent value={viewType} forceMount className="mt-0">
-            {viewType === "pie" && (
+          <Tabs defaultValue={viewType} value={viewType} onValueChange={setViewType} className="mt-0">
+            <TabsContent value="pie">
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <div className="lg:col-span-2">
                   <div className="h-[300px]">
@@ -134,9 +134,9 @@ export const CategoryList: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )}
+            </TabsContent>
             
-            {viewType === "donut" && (
+            <TabsContent value="donut">
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <div className="lg:col-span-2">
                   <div className="h-[300px]">
@@ -196,9 +196,9 @@ export const CategoryList: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )}
+            </TabsContent>
             
-            {viewType === "list" && (
+            <TabsContent value="list">
               <div className="space-y-4">
                 {displayData.map((category) => (
                   <div
@@ -223,8 +223,8 @@ export const CategoryList: React.FC = () => {
                   </div>
                 ))}
               </div>
-            )}
-          </TabsContent>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
