@@ -80,7 +80,7 @@ export const SpendingInsights: React.FC = () => {
         <CardTitle className="text-white">Spending Insights</CardTitle>
         <CardDescription className="text-gray-300">Personalized financial observations</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 bg-gray-900">
+      <CardContent className="space-y-4 bg-gray-900 p-5">
         {expenses.length === 0 ? (
           <div className="text-center py-4">
             <p className="text-muted-foreground">
@@ -88,10 +88,10 @@ export const SpendingInsights: React.FC = () => {
             </p>
             <div className="mt-4 space-y-4">
               <div className="flex items-start space-x-3">
-                <div className="bg-amber-900/30 p-2 rounded-full text-amber-500">
+                <div className="bg-amber-900/30 p-2 rounded-full text-amber-500 mt-0.5">
                   <TrendingDown className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Largest expense</h3>
                   <p className="text-sm text-gray-400">
                     Monthly Rent - <span className="font-bold text-white">{formatCurrency(18000)}</span> on {format(new Date(), "MMM dd")}
@@ -100,10 +100,10 @@ export const SpendingInsights: React.FC = () => {
               </div>
               
               <div className="flex items-start space-x-3">
-                <div className="bg-blue-900/30 p-2 rounded-full text-blue-500">
+                <div className="bg-blue-900/30 p-2 rounded-full text-blue-500 mt-0.5">
                   <ArrowUpRight className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Highest spending category</h3>
                   <p className="text-sm text-gray-400">
                     Housing - <span className="font-bold text-white">{formatCurrency(18000)}</span> this month
@@ -112,10 +112,10 @@ export const SpendingInsights: React.FC = () => {
               </div>
               
               <div className="flex items-start space-x-3">
-                <div className="bg-red-900/30 p-2 rounded-full text-red-500">
+                <div className="bg-red-900/30 p-2 rounded-full text-red-500 mt-0.5">
                   <AlertTriangle className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Budget alerts</h3>
                   <p className="text-sm text-gray-400">
                     2 categories over budget: <span className="font-bold text-white">Food & Dining, Entertainment</span>
@@ -124,10 +124,10 @@ export const SpendingInsights: React.FC = () => {
               </div>
               
               <div className="flex items-start space-x-3">
-                <div className="bg-purple-900/30 p-2 rounded-full text-purple-500">
+                <div className="bg-purple-900/30 p-2 rounded-full text-purple-500 mt-0.5">
                   <TrendingUp className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Unusual spending detected</h3>
                   <p className="text-sm text-gray-400">
                     You have larger than usual expenses in the past week
@@ -140,10 +140,10 @@ export const SpendingInsights: React.FC = () => {
           <>
             {largestExpense && (
               <div className="flex items-start space-x-3">
-                <div className="bg-amber-900/30 p-2 rounded-full text-amber-500">
+                <div className="bg-amber-900/30 p-2 rounded-full text-amber-500 mt-0.5">
                   <TrendingDown className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Largest expense</h3>
                   <p className="text-sm text-gray-400">
                     {largestExpense.description} - <span className="font-bold text-white">{formatCurrency(Math.abs(largestExpense.amount))}</span> on {format(new Date(largestExpense.date), "MMM dd")}
@@ -154,10 +154,10 @@ export const SpendingInsights: React.FC = () => {
             
             {highestCategory.id && (
               <div className="flex items-start space-x-3">
-                <div className="bg-blue-900/30 p-2 rounded-full text-blue-500">
+                <div className="bg-blue-900/30 p-2 rounded-full text-blue-500 mt-0.5">
                   <ArrowUpRight className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Highest spending category</h3>
                   <p className="text-sm text-gray-400">
                     {getCategoryById(highestCategory.id, categories).name} - <span className="font-bold text-white">{formatCurrency(highestCategory.amount)}</span> this month
@@ -168,10 +168,10 @@ export const SpendingInsights: React.FC = () => {
             
             {categoriesOverBudget.length > 0 && (
               <div className="flex items-start space-x-3">
-                <div className="bg-red-900/30 p-2 rounded-full text-red-500">
+                <div className="bg-red-900/30 p-2 rounded-full text-red-500 mt-0.5">
                   <AlertTriangle className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Budget alerts</h3>
                   <p className="text-sm text-gray-400">
                     {categoriesOverBudget.length} {categoriesOverBudget.length === 1 ? 'category' : 'categories'} over budget: <span className="font-bold text-white">{categoriesOverBudget.map(b => getCategoryById(b.categoryId, categories).name).join(', ')}</span>
@@ -182,10 +182,10 @@ export const SpendingInsights: React.FC = () => {
             
             {hasUnusualSpending && (
               <div className="flex items-start space-x-3">
-                <div className="bg-purple-900/30 p-2 rounded-full text-purple-500">
+                <div className="bg-purple-900/30 p-2 rounded-full text-purple-500 mt-0.5">
                   <TrendingUp className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-white">Unusual spending detected</h3>
                   <p className="text-sm text-gray-400">
                     You have larger than usual expenses in the past week

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/data";
-import { format, subMonths } from "date-fns";
+import { format, subMonths, parseISO } from "date-fns";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -48,27 +48,46 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
   data
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [tempSelectedDate, setTempSelectedDate] = useState<Date>(new Date());
+  const [chartData, setChartData] = useState<any[]>([]);
   
-  const generateMonthlyData = (months: number = 6) => {
+  useEffect(() => {
+    // Set chart data when component mounts or when selectedDate changes
+    generateChartData(selectedDate);
+  }, [selectedDate]);
+  
+  const generateChartData = (date: Date, months: number = 6) => {
     const result = [];
     for (let i = months - 1; i >= 0; i--) {
-      const date = subMonths(new Date(), i);
-      const monthName = format(date, "MMM");
-      const value = Math.floor(15000 + Math.random() * 10000 - 5000); // Random value around 15000
+      const monthDate = subMonths(date, i);
+      const monthName = format(monthDate, "MMM");
+      let value;
+      
+      // Generate different values based on the month for more variance
+      if (type === "balance") {
+        const monthIndex = monthDate.getMonth();
+        const baseValue = 10000 + (monthIndex * 1000); // Different base value for each month
+        value = baseValue + Math.floor(Math.random() * 6000 - 1000);
+      } else {
+        value = Math.floor(15000 + Math.random() * 10000 - 5000); // Random value around 15000
+      }
+      
       result.push({
         month: monthName,
         value: value
       });
     }
-    return result;
+    setChartData(result);
   };
 
-  const monthlyData = generateMonthlyData();
-  
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
-      setSelectedDate(date);
+      setTempSelectedDate(date);
     }
+  };
+  
+  const handleApplyDate = () => {
+    setSelectedDate(tempSelectedDate);
   };
 
   const renderTitle = () => {
@@ -154,7 +173,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={monthlyData}
+                    data={chartData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -240,7 +259,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={monthlyData.map(item => ({ ...item, value: item.value * 0.7 }))}
+                    data={chartData.map(item => ({ ...item, value: item.value * 0.7 }))}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -328,7 +347,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={monthlyData.map(item => ({ 
+                    data={chartData.map(item => ({ 
                       ...item, 
                       savingsRate: 20 + Math.floor(Math.random() * 20) 
                     }))}
@@ -399,22 +418,27 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
                 <span>For {format(selectedDate, "MMMM yyyy")}</span>
               </div>
               
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    Change
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 pointer-events-auto" align="end">
-                  <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateChange}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="flex space-x-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Change
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 pointer-events-auto" align="end">
+                    <CalendarComponent
+                      mode="single"
+                      selected={tempSelectedDate}
+                      onSelect={handleDateChange}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                    <div className="p-3 border-t border-gray-700 flex justify-end">
+                      <Button size="sm" onClick={handleApplyDate}>Apply</Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
             
             {/* Balance Breakdown */}
@@ -441,14 +465,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={[
-                      { month: 'Nov', value: 12500 },
-                      { month: 'Dec', value: 14200 },
-                      { month: 'Jan', value: 10800 },
-                      { month: 'Feb', value: 13500 },
-                      { month: 'Mar', value: 11900 },
-                      { month: 'Apr', value: 15800 }
-                    ]}
+                    data={chartData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
@@ -461,7 +478,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
                         borderRadius: '8px' 
                       }}
                       formatter={(value) => [`₹${value.toLocaleString()}`, 'Balance']}
-                      labelFormatter={(label) => `${label} 2025`}
+                      labelFormatter={(label) => `${label} ${format(selectedDate, "yyyy")}`}
                     />
                     <Bar 
                       dataKey="value" 
