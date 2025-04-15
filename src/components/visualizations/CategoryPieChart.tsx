@@ -25,7 +25,7 @@ export const CategoryPieChart: React.FC = () => {
   const categoryData = categoriesArray
     .filter(category => category.id !== "10") // Filter out income category
     .map((category) => {
-      const amount = getCategoryTotal(category.id, transactionsArray);
+      const amount = Math.abs(getCategoryTotal(category.id, transactionsArray));
       return {
         id: category.id,
         name: category.name,
@@ -160,7 +160,7 @@ export const CategoryPieChart: React.FC = () => {
                       <span className="font-medium text-white">{category.name}</span>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="font-semibold text-purple-300">{formatCurrency(category.value)}</span>
+                      <span className="font-bold text-purple-300">{formatCurrency(category.value)}</span>
                       <span className="text-xs text-gray-400">
                         {Math.round((category.value / totalExpenses) * 100)}% of total
                       </span>

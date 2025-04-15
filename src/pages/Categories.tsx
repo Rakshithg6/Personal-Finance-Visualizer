@@ -1,10 +1,13 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CategoryList } from "@/components/categories/CategoryList";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { useFinance } from "@/context/FinanceContext";
+import { formatCurrency } from "@/lib/data";
+
 import {
   Card,
   CardContent,
@@ -22,6 +25,45 @@ import { cn } from "@/lib/utils";
 
 const Categories: React.FC = () => {
   const [date, setDate] = useState<Date>(new Date());
+  const { transactions, categories } = useFinance();
+
+  // Calculate spending summary
+  const transactionsArray = Array.isArray(transactions) ? transactions : [];
+  const categoriesArray = Array.isArray(categories) ? categories : [];
+
+  // Filter transactions for the selected month
+  const monthTransactions = transactionsArray.filter(t => {
+    const transactionDate = new Date(t.date);
+    return (
+      transactionDate.getMonth() === date.getMonth() &&
+      transactionDate.getFullYear() === date.getFullYear() &&
+      t.amount < 0
+    );
+  });
+
+  // Total spending
+  const totalSpending = Math.abs(monthTransactions.reduce((sum, t) => sum + t.amount, 0));
+
+  // Find top category
+  const categorySpending = new Map();
+  monthTransactions.forEach(t => {
+    const amount = Math.abs(t.amount);
+    const current = categorySpending.get(t.categoryId) || 0;
+    categorySpending.set(t.categoryId, current + amount);
+  });
+
+  let topCategory = { id: "", name: "", amount: 0 };
+  categorySpending.forEach((amount, categoryId) => {
+    if (amount > topCategory.amount) {
+      const category = categoriesArray.find(c => c.id === categoryId);
+      if (category) {
+        topCategory = { id: categoryId, name: category.name, amount };
+      }
+    }
+  });
+
+  // Count categories used
+  const categoriesUsed = new Set(monthTransactions.map(t => t.categoryId)).size;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -42,6 +84,12 @@ const Categories: React.FC = () => {
       transition: { type: "spring", stiffness: 100 }
     }
   };
+
+  // Default values for demo
+  const demoTotalSpending = 34200;
+  const demoTopCategory = { name: "Housing", amount: 18000 };
+  const demoCategoriesUsed = 5;
+  const demoTotalCategories = 10;
 
   return (
     <motion.div 
@@ -92,15 +140,26 @@ const Categories: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-gray-800/50">
                 <p className="text-sm text-gray-400">Total Spending</p>
-                <p className="text-2xl font-bold text-white">₹34,200</p>
+                <p className="text-2xl font-bold text-white">
+                  {totalSpending > 0 ? formatCurrency(totalSpending) : formatCurrency(demoTotalSpending)}
+                </p>
               </div>
               <div className="p-4 rounded-lg bg-gray-800/50">
                 <p className="text-sm text-gray-400">Top Category</p>
-                <p className="text-2xl font-bold text-white">Housing</p>
+                <p className="text-2xl font-bold text-white">
+                  {topCategory.name || demoTopCategory.name}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {topCategory.amount > 0 
+                    ? formatCurrency(topCategory.amount) 
+                    : formatCurrency(demoTopCategory.amount)}
+                </p>
               </div>
               <div className="p-4 rounded-lg bg-gray-800/50">
                 <p className="text-sm text-gray-400">Categories Used</p>
-                <p className="text-2xl font-bold text-white">5 / 10</p>
+                <p className="text-2xl font-bold text-white">
+                  {categoriesUsed > 0 ? `${categoriesUsed} / ${categoriesArray.length}` : `${demoCategoriesUsed} / ${demoTotalCategories}`}
+                </p>
               </div>
             </div>
           </CardContent>

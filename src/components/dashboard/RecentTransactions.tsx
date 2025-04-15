@@ -61,7 +61,7 @@ export const RecentTransactions: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className={`text-right font-bold text-lg ${transaction.amount < 0 ? "text-destructive" : "text-success"}`}>
+                <div className={`text-right font-extrabold text-lg ${transaction.amount < 0 ? "text-destructive" : "text-success"}`}>
                   {formatCurrency(transaction.amount)}
                 </div>
               </div>

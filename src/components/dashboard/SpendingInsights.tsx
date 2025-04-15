@@ -94,7 +94,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-white">Largest expense</h3>
                   <p className="text-sm text-gray-400">
-                    Monthly Rent - {formatCurrency(18000)} on {format(new Date(), "MMM dd")}
+                    Monthly Rent - <span className="font-bold text-white">{formatCurrency(18000)}</span> on {format(new Date(), "MMM dd")}
                   </p>
                 </div>
               </div>
@@ -106,7 +106,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-white">Highest spending category</h3>
                   <p className="text-sm text-gray-400">
-                    Housing - {formatCurrency(18000)} this month
+                    Housing - <span className="font-bold text-white">{formatCurrency(18000)}</span> this month
                   </p>
                 </div>
               </div>
@@ -118,7 +118,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-white">Budget alerts</h3>
                   <p className="text-sm text-gray-400">
-                    2 categories over budget: Food & Dining, Entertainment
+                    2 categories over budget: <span className="font-bold text-white">Food & Dining, Entertainment</span>
                   </p>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-white">Largest expense</h3>
                   <p className="text-sm text-gray-400">
-                    {largestExpense.description} - {formatCurrency(Math.abs(largestExpense.amount))} on {format(new Date(largestExpense.date), "MMM dd")}
+                    {largestExpense.description} - <span className="font-bold text-white">{formatCurrency(Math.abs(largestExpense.amount))}</span> on {format(new Date(largestExpense.date), "MMM dd")}
                   </p>
                 </div>
               </div>
@@ -160,7 +160,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-white">Highest spending category</h3>
                   <p className="text-sm text-gray-400">
-                    {getCategoryById(highestCategory.id, categories).name} - {formatCurrency(highestCategory.amount)} this month
+                    {getCategoryById(highestCategory.id, categories).name} - <span className="font-bold text-white">{formatCurrency(highestCategory.amount)}</span> this month
                   </p>
                 </div>
               </div>
@@ -174,7 +174,7 @@ export const SpendingInsights: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-white">Budget alerts</h3>
                   <p className="text-sm text-gray-400">
-                    {categoriesOverBudget.length} {categoriesOverBudget.length === 1 ? 'category' : 'categories'} over budget: {categoriesOverBudget.map(b => getCategoryById(b.categoryId, categories).name).join(', ')}
+                    {categoriesOverBudget.length} {categoriesOverBudget.length === 1 ? 'category' : 'categories'} over budget: <span className="font-bold text-white">{categoriesOverBudget.map(b => getCategoryById(b.categoryId, categories).name).join(', ')}</span>
                   </p>
                 </div>
               </div>
