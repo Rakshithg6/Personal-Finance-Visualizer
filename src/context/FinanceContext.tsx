@@ -46,9 +46,9 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       try {
         setIsLoading(true);
         const [catRes, txRes, budgetRes] = await Promise.all([
-          fetch('http://localhost:5000/api/categories'),
-          fetch('http://localhost:5000/api/transactions'),
-          fetch('http://localhost:5000/api/budgets'),
+          fetch(`${import.meta.env.VITE_API_URL}/api/categories`),
+          fetch(`${import.meta.env.VITE_API_URL}/api/transactions`),
+          fetch(`${import.meta.env.VITE_API_URL}/api/budgets`),
         ]);
         // Merge backend categories with defaults, no duplicates by name
         const backendCats = await catRes.json();
@@ -83,7 +83,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     try {
       // Always use categoryId as id (never _id)
       const cleanTx = { ...transaction, categoryId: transaction.categoryId };
-      const res = await fetch('http://localhost:5000/api/transactions', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cleanTx),
@@ -107,8 +107,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const editTransaction = async (transaction: Transaction) => {
     try {
       // For simplicity, delete and re-add (or implement PUT in backend for full update)
-      await fetch(`http://localhost:5000/api/transactions/${transaction.id}`, { method: 'DELETE' });
-      const res = await fetch('http://localhost:5000/api/transactions', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/transactions/${transaction.id}`, { method: 'DELETE' });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(transaction),
@@ -131,7 +131,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const deleteTransaction = async (id: string) => {
     try {
-      await fetch(`http://localhost:5000/api/transactions/${id}`, { method: 'DELETE' });
+      await fetch(`${import.meta.env.VITE_API_URL}/api/transactions/${id}`, { method: 'DELETE' });
       setTransactions(prev => prev.filter((t) => t.id !== id));
       toast({
         title: 'Transaction Deleted',
@@ -149,7 +149,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const addBudget = async (budget: Omit<Budget, "id">) => {
     try {
-      const res = await fetch('http://localhost:5000/api/budgets', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/budgets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(budget),
@@ -173,8 +173,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const editBudget = async (budget: Budget) => {
     try {
       // For simplicity, delete and re-add (or implement PUT in backend for full update)
-      await fetch(`http://localhost:5000/api/budgets/${budget.id}`, { method: 'DELETE' });
-      const res = await fetch('http://localhost:5000/api/budgets', {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/budgets/${budget.id}`, { method: 'DELETE' });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/budgets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(budget),
@@ -216,7 +216,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const addCategory = async (category: Omit<Category, "id">) => {
     try {
-      const res = await fetch('http://localhost:5000/api/categories', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(category),
