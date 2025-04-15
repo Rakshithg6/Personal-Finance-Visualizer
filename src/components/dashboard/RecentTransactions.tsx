@@ -26,14 +26,8 @@ export const RecentTransactions: React.FC = () => {
         .slice(0, 5)
     : [];
 
-  // If no transactions, create dummy data
-  const displayTransactions = recentTransactions.length > 0 ? recentTransactions : [
-    { id: "1", description: "Monthly Rent", amount: -18000, date: "2025-04-01", categoryId: "1" },
-    { id: "2", description: "Salary", amount: 50000, date: "2025-04-05", categoryId: "10" },
-    { id: "3", description: "Grocery Shopping", amount: -4500, date: "2025-04-08", categoryId: "2" },
-    { id: "4", description: "Electricity Bill", amount: -2300, date: "2025-04-10", categoryId: "5" },
-    { id: "5", description: "Movie Night", amount: -1500, date: "2025-04-12", categoryId: "4" },
-  ];
+  // Always show the real recent transactions, even if less than 5
+  const displayTransactions = recentTransactions;
 
   return (
     <Card className="glass-card enhanced-shadow">

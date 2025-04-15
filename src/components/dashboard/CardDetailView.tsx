@@ -88,7 +88,11 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
   
   const handleApplyDate = () => {
     setSelectedDate(tempSelectedDate);
+    // Close the calendar popover
+    setCalendarOpen(false);
   };
+
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const renderTitle = () => {
     switch (type) {
@@ -99,6 +103,34 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <TrendingUp className="h-5 w-5 text-green-500" />
             </div>
             <span>Income Details</span>
+            {/* Calendar Popover for Month Selection */}
+            <div className="my-4">
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-[280px] justify-start text-left font-normal">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {format(selectedDate, "MMMM yyyy")}
+                    <span className="ml-2">Change</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <div className="p-3">
+                    <CalendarComponent
+                      mode="single"
+                      selected={tempSelectedDate}
+                      onSelect={handleDateChange}
+                      initialFocus
+                    />
+                    <Button
+                      className="w-full mt-2"
+                      onClick={handleApplyDate}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         );
       case "expenses":

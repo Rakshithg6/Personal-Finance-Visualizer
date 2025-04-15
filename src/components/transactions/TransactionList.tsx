@@ -61,9 +61,13 @@ export const TransactionList: React.FC = () => {
     setAlertDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedTransactionId) {
-      deleteTransaction(selectedTransactionId);
+      try {
+        await deleteTransaction(selectedTransactionId);
+      } catch (error) {
+        // Optionally handle error (e.g., show toast)
+      }
       setSelectedTransactionId(null);
     }
     setAlertDialogOpen(false);
@@ -131,7 +135,10 @@ export const TransactionList: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {sortedTransactions.map((transaction) => {
-                  const category = getCategoryById(transaction.categoryId, categories);
+                  let category = getCategoryById(transaction.categoryId, categories);
+                  if (!category) {
+                    category = { id: "unknown", name: "Unknown", color: "#9ca3af", icon: "more-horizontal" };
+                  }
                   return (
                     <TableRow key={transaction.id}>
                       <TableCell>
@@ -193,18 +200,18 @@ export const TransactionList: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+
       <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              transaction.
+              Are you sure you want to delete this transaction? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-white">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

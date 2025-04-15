@@ -50,8 +50,19 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
   const { categories, addBudget, editBudget } = useFinance();
   const currentMonth = format(new Date(), "yyyy-MM");
 
-  // Filter out the Income category (assuming it has id "10")
-  const filteredCategories = categories.filter(cat => cat.id !== "10");
+  // Default categories (always shown in dropdown)
+  const defaultCategories = [
+    { name: "Housing", color: "#ef4444", icon: "home", _id: "default-housing" },
+    { name: "Food", color: "#3b82f6", icon: "utensils", _id: "default-food" },
+    { name: "Transportation", color: "#facc15", icon: "car", _id: "default-transportation" },
+    { name: "Entertainment", color: "#2dd4bf", icon: "film", _id: "default-entertainment" },
+    { name: "Shopping", color: "#a78bfa", icon: "shopping-bag", _id: "default-shopping" },
+  ];
+  // Merge backend categories and defaults (no duplicates by name, and filter out Income)
+  const filteredCategories = [
+    ...defaultCategories.filter(def => !categories.some(cat => cat.name === def.name)),
+    ...categories.filter(cat => (cat.id ?? cat._id) !== "10"),
+  ];
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -110,10 +121,21 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
                 </FormControl>
                 <SelectContent>
                   {filteredCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
+  <SelectItem key={category._id || category.id} value={category._id || category.id}>
+    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+      <span style={{
+        display: 'inline-block',
+        width: 16,
+        height: 16,
+        borderRadius: 4,
+        backgroundColor: category.color,
+        marginRight: 8,
+        border: '1px solid #fff',
+      }} />
+      {category.name}
+    </span>
+  </SelectItem>
+))}
                 </SelectContent>
               </Select>
               <FormMessage />

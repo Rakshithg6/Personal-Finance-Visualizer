@@ -1,73 +1,66 @@
-# Welcome to your Lovable project
+# Personal Finance Visualizer
 
-## Project info
+A simple, modern web application for tracking personal finances, visualizing expenses, and managing budgets.
 
-**URL**: https://lovable.dev/projects/128976de-3a95-4cf9-9d36-13664ac08a57
+## Features
+- Add, edit, and delete transactions (amount, date, description, category)
+- Transaction list with search and filter
+- Monthly expenses bar chart
+- Category-wise pie chart
+- Dashboard with summary cards (total expenses, category breakdown, most recent transactions)
+- Set monthly category budgets
+- Budget vs. actual comparison chart
+- Simple spending insights
+- Responsive design with error states
 
-## How can I edit this code?
+## Tech Stack
+- **Frontend:** Next.js, React, shadcn/ui, Recharts
+- **Backend:** Node.js, Express
+- **Database:** MongoDB
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
+- Node.js (v18+ recommended)
+- npm or yarn
+- MongoDB (local or cloud)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/128976de-3a95-4cf9-9d36-13664ac08a57) and start prompting.
+### Installation
+```bash
+# Clone the repository
+ git clone <your-repo-url>
+ cd personal-finance-visualizer
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Install dependencies
+ npm install
+# or
+yarn install
 ```
 
-**Edit a file directly in GitHub**
+### Running Locally
+```bash
+# Start the backend server
+cd server
+npm install
+npm run dev
+# In a new terminal, start the frontend
+cd ..
+npm run dev
+```
+- Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Environment Variables
+Create a `.env` file in the `server` folder with your MongoDB connection string:
+```
+MONGO_URI=mongodb://localhost:27017/finflow
+```
 
-**Use GitHub Codespaces**
+## Deployment
+- Deploy the frontend to Vercel, Netlify, or similar.
+- Deploy the backend to Render, Railway, or any Node.js hosting.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## License
+MIT
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/128976de-3a95-4cf9-9d36-13664ac08a57) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+**Personal Finance Visualizer** – Track, visualize, and improve your spending with ease.

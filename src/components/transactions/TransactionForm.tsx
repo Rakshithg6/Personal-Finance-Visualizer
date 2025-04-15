@@ -60,7 +60,44 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   transaction,
   onSubmit,
 }) => {
-  const { categories, addTransaction, editTransaction } = useFinance();
+  const { categories, addTransaction, editTransaction, addCategory } = useFinance();
+
+  // Use only 'id' for category keys, never '_id' or 'category_id'.
+  // Default categories (always shown in dropdown)
+  const defaultCategories = [
+    { name: "Housing", color: "#ef4444", icon: "home", id: "1" },
+    { name: "Food & Dining", color: "#60a5fa", icon: "utensils", id: "1" },
+    { name: "Transportation", color: "#34d399", icon: "car", id: "2" },
+    { name: "Entertainment", color: "#f87171", icon: "film", id: "4" },
+    { name: "Shopping", color: "#fbbf24", icon: "shopping-bag", id: "5" },
+    { name: "Healthcare", color: "#22d3ee", icon: "heart-pulse", id: "6" },
+    { name: "Personal Care", color: "#f472b6", icon: "scissors", id: "7" },
+    { name: "Education", color: "#6366f1", icon: "book", id: "8" },
+    { name: "Investments", color: "#10b981", icon: "trending-up", id: "9" },
+    { name: "Income", color: "#10b981", icon: "wallet", id: "10" },
+    { name: "Other", color: "#9ca3af", icon: "more-horizontal", id: "11" },
+  ];
+  // Merge backend categories and defaults (no duplicates by id)
+  const mergedCategories = [
+    ...defaultCategories.filter(def => !categories.some(cat => cat.id === def.id)),
+    ...categories,
+  ];
+
+  // State for Add Category dialog
+  const [addCatOpen, setAddCatOpen] = React.useState(false);
+  const [newCatName, setNewCatName] = React.useState("");
+  const [newCatColor, setNewCatColor] = React.useState("#60a5fa"); // default color
+  const [addingCat, setAddingCat] = React.useState(false);
+
+  // Helper to handle Add Category selection
+  // Helper to handle Add Category selection
+  const handleCategoryChange = (val: string) => {
+    if (val === "__add__") {
+      setAddCatOpen(true);
+    } else {
+      form.setValue("categoryId", val);
+    }
+  }
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -79,13 +116,13 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         },
   });
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = async (values: FormValues) => {
     const isExpense = values.categoryId !== "10"; // Assuming "10" is the Income category
     const numericAmount = Number(values.amount);
     const finalAmount = isExpense ? -Math.abs(numericAmount) : Math.abs(numericAmount);
 
     if (transaction) {
-      editTransaction({
+      await editTransaction({
         id: transaction.id,
         amount: finalAmount,
         date: values.date.toISOString(),
@@ -93,7 +130,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         categoryId: values.categoryId,
       });
     } else {
-      addTransaction({
+      await addTransaction({
         amount: finalAmount,
         date: values.date.toISOString(),
         description: values.description,
@@ -104,9 +141,10 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <FormField
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <FormField
           control={form.control}
           name="amount"
           render={({ field }) => (
@@ -135,18 +173,32 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={handleCategoryChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {categories.map((category) => (
+                  {mergedCategories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
-                      {category.name}
+                      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <span style={{
+                          display: 'inline-block',
+                          width: 16,
+                          height: 16,
+                          borderRadius: 4,
+                          backgroundColor: category.color,
+                          marginRight: 8,
+                          border: '1px solid #fff',
+                        }} />
+                        {category.name}
+                      </span>
                     </SelectItem>
                   ))}
+                  <SelectItem value="__add__" className="text-primary font-semibold">
+                    + Add Category
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -218,5 +270,57 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         </div>
       </form>
     </Form>
+    {/* Add Category Dialog */}
+    {addCatOpen && (
+      <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs">
+          <h3 className="text-lg font-semibold mb-2">Add Category</h3>
+          <input
+            className="w-full border px-2 py-1 rounded mb-2"
+            placeholder="Category name"
+            value={newCatName}
+            onChange={e => setNewCatName(e.target.value)}
+            disabled={addingCat}
+          />
+          <div className="mb-2">
+            <label className="mr-2">Color:</label>
+            <input
+              type="color"
+              value={newCatColor}
+              onChange={e => setNewCatColor(e.target.value)}
+              disabled={addingCat}
+              style={{ width: 30, height: 30, verticalAlign: 'middle', border: 'none', background: 'none' }}
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              type="button"
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+              onClick={() => setAddCatOpen(false)}
+              disabled={addingCat}
+            >Cancel</button>
+            <button
+              type="button"
+              className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+              onClick={async () => {
+                if (!newCatName.trim()) return;
+                setAddingCat(true);
+                const result = await addCategory({ name: newCatName, color: newCatColor, icon: "tag" });
+                setAddingCat(false);
+                if (result && result.id) {
+                  // Set the new category as selected (by id only)
+                  form.setValue("categoryId", result.id);
+                  setAddCatOpen(false);
+                  setNewCatName("");
+                  setNewCatColor("#60a5fa");
+                }
+              }}
+              disabled={addingCat}
+            >{addingCat ? "Adding..." : "Add"}</button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
-};
+}

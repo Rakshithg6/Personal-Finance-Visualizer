@@ -49,7 +49,7 @@ export const Navbar = () => {
         <div className="flex items-center space-x-2">
           <span className="font-bold text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center">
             <Wallet className="h-8 w-8 mr-2 text-purple-500" />
-            FinFlow
+            Personal Finance Visualizer
           </span>
         </div>
         
@@ -89,7 +89,7 @@ export const Navbar = () => {
             <div className="flex justify-center my-8">
               <span className="font-bold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center">
                 <Wallet className="h-7 w-7 mr-2 text-purple-500" />
-                FinFlow
+                Personal Finance Visualizer
               </span>
             </div>
             <nav className="flex flex-col space-y-6 mt-8">

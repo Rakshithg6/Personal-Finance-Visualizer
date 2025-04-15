@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Transaction, Category, Budget } from "@/types";
-import { generateId, categories, sampleTransactions, sampleBudgets } from "@/lib/data";
+import { generateId, categories as defaultCategoriesData, sampleTransactions, sampleBudgets } from "@/lib/data";
 import { format } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
 
@@ -16,6 +16,7 @@ interface FinanceContextType {
   addBudget: (budget: Omit<Budget, "id">) => Promise<void>;
   editBudget: (budget: Budget) => Promise<void>;
   deleteBudget: (id: string) => Promise<void>;
+  addCategory: (category: Omit<Category, "id">) => Promise<Category | null>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -34,202 +35,211 @@ interface FinanceProviderProps {
 
 export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Always merge backend and default categories, no duplicates by name
+  const [categories, setCategories] = useState<Category[]>([...defaultCategoriesData]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Load data from localStorage or use sample data
+  // Load data from backend API (MongoDB)
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
       try {
         setIsLoading(true);
-        
-        // Load categories from localStorage or use sample data
-        const storedCategories = localStorage.getItem('financeCategories');
-        if (storedCategories) {
-          setCategories(JSON.parse(storedCategories));
-        } else {
-          setCategories(categories);
-          localStorage.setItem('financeCategories', JSON.stringify(categories));
-        }
-        
-        // Load transactions from localStorage or use sample data
-        const storedTransactions = localStorage.getItem('financeTransactions');
-        if (storedTransactions) {
-          setTransactions(JSON.parse(storedTransactions));
-        } else {
-          setTransactions(sampleTransactions);
-          localStorage.setItem('financeTransactions', JSON.stringify(sampleTransactions));
-        }
-        
-        // Load budgets from localStorage or use sample data
-        const storedBudgets = localStorage.getItem('financeBudgets');
-        if (storedBudgets) {
-          setBudgets(JSON.parse(storedBudgets));
-        } else {
-          setBudgets(sampleBudgets);
-          localStorage.setItem('financeBudgets', JSON.stringify(sampleBudgets));
-        }
+        const [catRes, txRes, budgetRes] = await Promise.all([
+          fetch('http://localhost:5000/api/categories'),
+          fetch('http://localhost:5000/api/transactions'),
+          fetch('http://localhost:5000/api/budgets'),
+        ]);
+        // Merge backend categories with defaults, no duplicates by name
+        const backendCats = await catRes.json();
+        const mergedCats = [
+          ...defaultCategoriesData.filter(def => !backendCats.some((cat: Category) => cat.id === def.id)),
+          ...backendCats
+        ];
+        setCategories(mergedCats);
+        const txs = await txRes.json();
+        setTransactions(
+          txs.map((tx: any) => ({
+            ...tx,
+            id: tx.id || tx._id || '',
+          }))
+        );
+        setBudgets(await budgetRes.json());
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error('Error loading data:', error);
         toast({
-          title: "Error loading data",
-          description: "Using sample data instead.",
-          variant: "destructive"
+          title: 'Error loading data',
+          description: 'Could not load from backend.',
+          variant: 'destructive',
         });
-        
-        // Fallback to sample data
-        setCategories(categories);
-        setTransactions(sampleTransactions);
-        setBudgets(sampleBudgets);
       } finally {
         setIsLoading(false);
       }
     };
-
     loadData();
   }, []);
 
   const addTransaction = async (transaction: Omit<Transaction, "id">) => {
     try {
-      const newTransaction = {
-        ...transaction,
-        id: generateId(),
-      };
-      
-      const updatedTransactions = [newTransaction, ...transactions];
-      setTransactions(updatedTransactions);
-      localStorage.setItem('financeTransactions', JSON.stringify(updatedTransactions));
-      
+      // Always use categoryId as id (never _id)
+      const cleanTx = { ...transaction, categoryId: transaction.categoryId };
+      const res = await fetch('http://localhost:5000/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cleanTx),
+      });
+      const newTx = await res.json();
+      setTransactions([newTx, ...transactions]);
       toast({
-        title: "Transaction Added",
-        description: "Your transaction has been successfully added.",
+        title: 'Transaction Added',
+        description: 'Your transaction has been successfully added.',
       });
     } catch (error) {
-      console.error("Error adding transaction:", error);
+      console.error('Error adding transaction:', error);
       toast({
-        title: "Error",
-        description: "Failed to add transaction. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to add transaction. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
   const editTransaction = async (transaction: Transaction) => {
     try {
-      const updatedTransactions = transactions.map((t) => 
-        t.id === transaction.id ? transaction : t
-      );
-      
-      setTransactions(updatedTransactions);
-      localStorage.setItem('financeTransactions', JSON.stringify(updatedTransactions));
-      
+      // For simplicity, delete and re-add (or implement PUT in backend for full update)
+      await fetch(`http://localhost:5000/api/transactions/${transaction.id}`, { method: 'DELETE' });
+      const res = await fetch('http://localhost:5000/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transaction),
+      });
+      const newTx = await res.json();
+      setTransactions(transactions.map(t => t.id === transaction.id ? { ...newTx, id: newTx.id || newTx._id || transaction.id } : t));
       toast({
-        title: "Transaction Updated",
-        description: "Your transaction has been successfully updated.",
+        title: 'Transaction Updated',
+        description: 'Your transaction has been successfully updated.',
       });
     } catch (error) {
-      console.error("Error updating transaction:", error);
+      console.error('Error updating transaction:', error);
       toast({
-        title: "Error",
-        description: "Failed to update transaction. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to update transaction. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
   const deleteTransaction = async (id: string) => {
     try {
-      const updatedTransactions = transactions.filter((t) => t.id !== id);
-      
-      setTransactions(updatedTransactions);
-      localStorage.setItem('financeTransactions', JSON.stringify(updatedTransactions));
-      
+      await fetch(`http://localhost:5000/api/transactions/${id}`, { method: 'DELETE' });
+      setTransactions(prev => prev.filter((t) => t.id !== id));
       toast({
-        title: "Transaction Deleted",
-        description: "Your transaction has been successfully deleted.",
+        title: 'Transaction Deleted',
+        description: 'Your transaction has been successfully deleted.',
       });
     } catch (error) {
-      console.error("Error deleting transaction:", error);
+      console.error('Error deleting transaction:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete transaction. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to delete transaction. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
   const addBudget = async (budget: Omit<Budget, "id">) => {
     try {
-      const newBudget = {
-        ...budget,
-        id: generateId(),
-      };
-      
-      // Filter out any existing budget for this category and month
-      const filteredBudgets = budgets.filter(
-        (b) => !(b.categoryId === budget.categoryId && b.month === budget.month)
-      );
-      
-      const updatedBudgets = [...filteredBudgets, newBudget];
-      setBudgets(updatedBudgets);
-      localStorage.setItem('financeBudgets', JSON.stringify(updatedBudgets));
-      
+      const res = await fetch('http://localhost:5000/api/budgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(budget),
+      });
+      const newBudget = await res.json();
+      setBudgets([newBudget, ...budgets]);
       toast({
-        title: "Budget Added",
-        description: "Your budget has been successfully set.",
+        title: 'Budget Added',
+        description: 'Your budget has been successfully added.',
       });
     } catch (error) {
-      console.error("Error adding budget:", error);
+      console.error('Error adding budget:', error);
       toast({
-        title: "Error",
-        description: "Failed to add budget. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to add budget. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
   const editBudget = async (budget: Budget) => {
     try {
-      const updatedBudgets = budgets.map((b) => 
-        b.id === budget.id ? budget : b
-      );
-      
-      setBudgets(updatedBudgets);
-      localStorage.setItem('financeBudgets', JSON.stringify(updatedBudgets));
-      
+      // For simplicity, delete and re-add (or implement PUT in backend for full update)
+      await fetch(`http://localhost:5000/api/budgets/${budget.id}`, { method: 'DELETE' });
+      const res = await fetch('http://localhost:5000/api/budgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(budget),
+      });
+      const newBudget = await res.json();
+      setBudgets([newBudget, ...budgets.filter(b => b.id !== budget.id)]);
       toast({
-        title: "Budget Updated",
-        description: "Your budget has been successfully updated.",
+        title: 'Budget Updated',
+        description: 'Your budget has been successfully updated.',
       });
     } catch (error) {
-      console.error("Error updating budget:", error);
+      console.error('Error updating budget:', error);
       toast({
-        title: "Error",
-        description: "Failed to update budget. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to update budget. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
   const deleteBudget = async (id: string) => {
     try {
-      const updatedBudgets = budgets.filter((b) => b.id !== id);
-      
-      setBudgets(updatedBudgets);
-      localStorage.setItem('financeBudgets', JSON.stringify(updatedBudgets));
-      
+      await fetch(`http://localhost:5000/api/budgets/${id}`, { method: 'DELETE' });
+      setBudgets(budgets.filter(b => b.id !== id));
       toast({
-        title: "Budget Deleted",
-        description: "Your budget has been successfully deleted.",
+        title: 'Budget Deleted',
+        description: 'Your budget has been successfully deleted.',
       });
     } catch (error) {
-      console.error("Error deleting budget:", error);
+      console.error('Error deleting budget:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete budget. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to delete budget. Please try again.',
+        variant: 'destructive',
       });
+    }
+  };
+
+
+  const addCategory = async (category: Omit<Category, "id">) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(category),
+      });
+      const newCategory = await res.json();
+      // Ensure no duplicate names when adding new category
+      setCategories(prev => {
+        if (prev.some(cat => cat.name === newCategory.name)) return prev;
+        return [...prev, newCategory];
+      });
+      toast({
+        title: 'Category Added',
+        description: 'Your category has been successfully added.',
+      });
+      return newCategory;
+    } catch (error) {
+      console.error('Error adding category:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add category. Please try again.',
+        variant: 'destructive',
+      });
+      return null;
     }
   };
 
@@ -244,6 +254,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     addBudget,
     editBudget,
     deleteBudget,
+    addCategory,
   };
 
   return (

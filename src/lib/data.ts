@@ -17,6 +17,8 @@ export const categories: Category[] = [
   { id: "11", name: "Other", color: "#9ca3af", icon: "more-horizontal" },
 ];
 
+
+
 // Generate some sample transactions
 export const sampleTransactions: Transaction[] = [
   {

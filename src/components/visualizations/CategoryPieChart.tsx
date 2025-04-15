@@ -23,11 +23,13 @@ export const CategoryPieChart: React.FC = () => {
   
   // Calculate totals for each category (only expenses)
   const categoryData = categoriesArray
-    .filter(category => category.id !== "10") // Filter out income category
+    .filter(category => (category.id ?? category._id) !== "10") // Filter out income category
     .map((category) => {
-      const amount = Math.abs(getCategoryTotal(category.id, transactionsArray));
+      // Match transactions by either id or _id
+      const catId = category.id ?? category._id;
+      const amount = Math.abs(getCategoryTotal(catId, transactionsArray));
       return {
-        id: category.id,
+        id: catId,
         name: category.name,
         value: amount,
         color: category.color,
@@ -36,15 +38,8 @@ export const CategoryPieChart: React.FC = () => {
     .filter((item) => item.value > 0) // Only include categories with expenses
     .sort((a, b) => b.value - a.value); // Sort by highest amount
 
-  // If no categories with expenses, provide dummy data
-  const displayData = categoryData.length > 0 ? categoryData : [
-    { id: "3", name: "Housing", value: 18000, color: "#FF6384" },
-    { id: "1", name: "Food", value: 12000, color: "#36A2EB" },
-    { id: "2", name: "Transportation", value: 8000, color: "#FFCE56" },
-    { id: "4", name: "Entertainment", value: 5000, color: "#4BC0C0" },
-    { id: "5", name: "Shopping", value: 6000, color: "#9966FF" },
-  ];
-
+  // Only use real data
+  const displayData = categoryData;
   const totalExpenses = displayData.reduce((sum, item) => sum + item.value, 0);
 
   const CustomTooltip = ({ active, payload }: any) => {

@@ -1,0 +1,19 @@
+{
+  "name": "finflow-server",
+  "version": "1.0.0",
+  "main": "index.cjs",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.cjs",
+    "dev": "nodemon index.cjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.13.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
