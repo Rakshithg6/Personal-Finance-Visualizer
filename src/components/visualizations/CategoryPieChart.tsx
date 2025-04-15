@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, Label } from "recharts";
 import { useFinance } from "@/context/FinanceContext";
 import { getCategoryTotal, formatCurrency } from "@/lib/data";
 
@@ -36,7 +36,16 @@ export const CategoryPieChart: React.FC = () => {
     .filter((item) => item.value > 0) // Only include categories with expenses
     .sort((a, b) => b.value - a.value); // Sort by highest amount
 
-  const totalExpenses = categoryData.reduce((sum, item) => sum + item.value, 0);
+  // If no categories with expenses, provide dummy data
+  const displayData = categoryData.length > 0 ? categoryData : [
+    { id: "3", name: "Housing", value: 18000, color: "#FF6384" },
+    { id: "1", name: "Food", value: 12000, color: "#36A2EB" },
+    { id: "2", name: "Transportation", value: 8000, color: "#FFCE56" },
+    { id: "4", name: "Entertainment", value: 5000, color: "#4BC0C0" },
+    { id: "5", name: "Shopping", value: 6000, color: "#9966FF" },
+  ];
+
+  const totalExpenses = displayData.reduce((sum, item) => sum + item.value, 0);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -44,7 +53,7 @@ export const CategoryPieChart: React.FC = () => {
       return (
         <div className="bg-gray-800 p-4 border rounded-lg shadow-sm border-gray-700">
           <p className="font-medium">{data.name}</p>
-          <p className="text-primary">{formatCurrency(data.value)}</p>
+          <p className="text-primary font-bold">{formatCurrency(data.value)}</p>
           <p className="text-sm text-muted-foreground">
             {Math.round((data.value / totalExpenses) * 100)}% of total
           </p>
@@ -54,8 +63,24 @@ export const CategoryPieChart: React.FC = () => {
     return null;
   };
 
-  const renderLabel = ({ name, percent }: any) => {
-    return `${name}: ${(percent * 100).toFixed(0)}%`;
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius * 1.1;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill={displayData[index].color} 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        className="font-medium text-sm"
+      >
+        {`${name}: ${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
   };
 
   return (
@@ -75,27 +100,27 @@ export const CategoryPieChart: React.FC = () => {
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent className="bg-gray-900">
-        {categoryData.length === 0 ? (
+      <CardContent className="bg-gray-900 p-6">
+        {displayData.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-muted-foreground">No spending data available</p>
           </div>
         ) : (
-          <TabsContent value={viewType} forceMount className="mt-4">
-            {viewType === "pie" && (
-              <div className="h-[350px]">
+          <Tabs value={viewType} onValueChange={setViewType}>
+            <TabsContent value="pie" className="mt-0">
+              <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                  <PieChart margin={{ top: 20, right: 50, bottom: 20, left: 50 }}>
                     <Pie
-                      data={categoryData}
+                      data={displayData}
                       cx="50%"
                       cy="50%"
                       outerRadius={130}
                       dataKey="value"
-                      labelLine={true}
-                      label={renderLabel}
+                      label={renderCustomizedLabel}
+                      labelLine={false}
                     >
-                      {categoryData.map((entry, index) => (
+                      {displayData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -104,50 +129,57 @@ export const CategoryPieChart: React.FC = () => {
                       layout="horizontal"
                       verticalAlign="bottom"
                       align="center" 
-                      formatter={(value, entry, index) => (
+                      formatter={(value) => (
                         <span className="text-sm font-medium text-gray-300">{value}</span>
                       )}
+                      wrapperStyle={{ paddingTop: "20px" }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-            )}
+            </TabsContent>
             
-            {viewType === "donut" && (
-              <div className="h-[350px]">
+            <TabsContent value="donut" className="mt-0">
+              <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                  <PieChart margin={{ top: 20, right: 50, bottom: 20, left: 50 }}>
                     <Pie
-                      data={categoryData}
+                      data={displayData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={70}
-                      outerRadius={120}
+                      innerRadius={80}
+                      outerRadius={130}
                       paddingAngle={2}
                       dataKey="value"
                       labelLine={false}
                     >
-                      {categoryData.map((entry, index) => (
+                      {displayData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
+                      <Label 
+                        position="center" 
+                        className="text-lg font-bold" 
+                        fill="#fff"
+                        value={`Total: ${formatCurrency(totalExpenses)}`} 
+                      />
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
                     <Legend 
                       layout="vertical"
                       verticalAlign="middle"
                       align="right" 
-                      formatter={(value, entry, index) => (
+                      formatter={(value) => (
                         <span className="text-sm font-medium text-gray-300">{value}</span>
                       )}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-            )}
+            </TabsContent>
             
-            {viewType === "list" && (
-              <div className="mt-4 space-y-3 max-h-[350px] overflow-auto pr-2">
-                {categoryData.map((category) => (
+            <TabsContent value="list" className="mt-0">
+              <div className="mt-4 space-y-3 max-h-[400px] overflow-auto pr-2">
+                {displayData.map((category) => (
                   <div 
                     key={category.id} 
                     className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
@@ -168,8 +200,8 @@ export const CategoryPieChart: React.FC = () => {
                   </div>
                 ))}
               </div>
-            )}
-          </TabsContent>
+            </TabsContent>
+          </Tabs>
         )}
       </CardContent>
     </Card>

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useFinance } from "@/context/FinanceContext";
 import { getCategoryTotal } from "@/lib/data";
 import { formatCurrency } from "@/lib/data";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Label } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,11 +33,11 @@ export const CategoryList: React.FC = () => {
 
   // If no categories with expenses, provide dummy data
   const displayData = categoryData.length > 0 ? categoryData : [
-    { id: "1", name: "Housing", value: 2000, color: "#FF6384" },
-    { id: "2", name: "Food", value: 1200, color: "#36A2EB" },
-    { id: "3", name: "Transportation", value: 800, color: "#FFCE56" },
-    { id: "4", name: "Entertainment", value: 500, color: "#4BC0C0" },
-    { id: "5", name: "Shopping", value: 700, color: "#9966FF" },
+    { id: "3", name: "Housing", value: 18000, color: "#FF6384" },
+    { id: "1", name: "Food", value: 12000, color: "#36A2EB" },
+    { id: "2", name: "Transportation", value: 8000, color: "#FFCE56" },
+    { id: "4", name: "Entertainment", value: 5000, color: "#4BC0C0" },
+    { id: "5", name: "Shopping", value: 7000, color: "#9966FF" },
   ];
 
   const totalExpenses = displayData.reduce((sum, item) => sum + item.value, 0);
@@ -58,11 +58,31 @@ export const CategoryList: React.FC = () => {
     return null;
   };
 
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius * 1.1;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill={displayData[index].color} 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        className="font-medium text-sm"
+      >
+        {`${name}: ${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gradient">Spending Categories</h2>
-        <Tabs defaultValue={viewType} onValueChange={setViewType} className="w-[280px]">
+        <Tabs value={viewType} onValueChange={setViewType} className="w-[280px]">
           <TabsList className="bg-gray-800 border border-gray-600">
             <TabsTrigger value="pie" className="data-[state=active]:bg-purple-900 text-white">Pie Chart</TabsTrigger>
             <TabsTrigger value="donut" className="data-[state=active]:bg-purple-900 text-white">Donut Chart</TabsTrigger>
@@ -73,21 +93,21 @@ export const CategoryList: React.FC = () => {
 
       <Card className="glass-card">
         <CardContent className="pt-6">
-          <Tabs defaultValue={viewType} value={viewType} onValueChange={setViewType} className="mt-0">
+          <Tabs value={viewType} onValueChange={setViewType} className="mt-0">
             <TabsContent value="pie">
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <div className="lg:col-span-2">
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
+                      <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                         <Pie
                           data={displayData}
                           cx="50%"
                           cy="50%"
                           outerRadius={100}
                           dataKey="value"
-                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                          labelLine={true}
+                          labelLine={false}
+                          label={renderCustomizedLabel}
                         >
                           {displayData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
@@ -154,6 +174,12 @@ export const CategoryList: React.FC = () => {
                           {displayData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
+                          <Label 
+                            position="center" 
+                            className="text-sm" 
+                            fill="#fff"
+                            value={`Total: ${formatCurrency(totalExpenses)}`} 
+                          />
                         </Pie>
                         <Tooltip content={<CustomTooltip />} />
                         <Legend 
