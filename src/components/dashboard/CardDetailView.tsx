@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -10,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/data";
-import { format } from "date-fns";
+import { format, subMonths } from "date-fns";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -24,7 +25,14 @@ import {
   DollarSign,
   PieChart as PieChartIcon
 } from "lucide-react";
-import { PieChart, Pie, Cell } from "recharts";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 type CardDetailProps = {
   open: boolean;
@@ -39,6 +47,30 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
   type,
   data
 }) => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  
+  const generateMonthlyData = (months: number = 6) => {
+    const result = [];
+    for (let i = months - 1; i >= 0; i--) {
+      const date = subMonths(new Date(), i);
+      const monthName = format(date, "MMM");
+      const value = Math.floor(15000 + Math.random() * 10000 - 5000); // Random value around 15000
+      result.push({
+        month: monthName,
+        value: value
+      });
+    }
+    return result;
+  };
+
+  const monthlyData = generateMonthlyData();
+  
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+
   const renderTitle = () => {
     switch (type) {
       case "income":
@@ -85,7 +117,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
       case "income":
         return (
           <div className="space-y-6">
-            <div className="text-3xl font-bold text-success">{formatCurrency(data.currentIncome)}</div>
+            <div className="text-3xl font-bold text-success">₹{(data.currentIncome || 50000).toLocaleString()}</div>
             
             {/* Monthly Breakdown */}
             <div className="space-y-4">
@@ -96,23 +128,42 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Current Month</span>
-                  <span className="font-medium">{formatCurrency(data.currentIncome)}</span>
+                  <span className="font-medium">₹{(data.currentIncome || 50000).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Previous Month</span>
-                  <span className="font-medium">{formatCurrency(data.previousIncome)}</span>
+                  <span className="font-medium">₹{(data.previousIncome || 48000).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Monthly Change</span>
-                  <span className={`font-medium flex items-center ${data.incomeChange >= 0 ? "text-success" : "text-destructive"}`}>
-                    {data.incomeChange >= 0 ? (
+                  <span className={`font-medium flex items-center ${(data.incomeChange || 4.2) >= 0 ? "text-success" : "text-destructive"}`}>
+                    {(data.incomeChange || 4.2) >= 0 ? (
                       <ArrowUp className="h-4 w-4 mr-1" />
                     ) : (
                       <ArrowDown className="h-4 w-4 mr-1" />
                     )}
-                    {Math.abs(data.incomeChange).toFixed(1)}%
+                    {Math.abs(data.incomeChange || 4.2).toFixed(1)}%
                   </span>
                 </div>
+              </div>
+            </div>
+            
+            {/* Monthly Trend */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Monthly Trend</h3>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={monthlyData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#4ade80" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
             
@@ -152,7 +203,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
       case "expenses":
         return (
           <div className="space-y-6">
-            <div className="text-3xl font-bold text-destructive">{formatCurrency(data.currentExpenses)}</div>
+            <div className="text-3xl font-bold text-destructive">₹{(data.currentExpenses || 34200).toLocaleString()}</div>
             
             {/* Monthly Breakdown */}
             <div className="space-y-4">
@@ -163,23 +214,42 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Current Month</span>
-                  <span className="font-medium">{formatCurrency(data.currentExpenses)}</span>
+                  <span className="font-medium">₹{(data.currentExpenses || 34200).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Previous Month</span>
-                  <span className="font-medium">{formatCurrency(data.previousExpenses)}</span>
+                  <span className="font-medium">₹{(data.previousExpenses || 32500).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Monthly Change</span>
-                  <span className={`font-medium flex items-center ${data.expensesChange <= 0 ? "text-success" : "text-destructive"}`}>
-                    {data.expensesChange <= 0 ? (
+                  <span className={`font-medium flex items-center ${(data.expensesChange || 5.2) <= 0 ? "text-success" : "text-destructive"}`}>
+                    {(data.expensesChange || 5.2) <= 0 ? (
                       <ArrowDown className="h-4 w-4 mr-1" />
                     ) : (
                       <ArrowUp className="h-4 w-4 mr-1" />
                     )}
-                    {Math.abs(data.expensesChange).toFixed(1)}%
+                    {Math.abs(data.expensesChange || 5.2).toFixed(1)}%
                   </span>
                 </div>
+              </div>
+            </div>
+            
+            {/* Monthly Trend */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Monthly Trend</h3>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={monthlyData.map(item => ({ ...item, value: item.value * 0.7 }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#ef4444" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
             
@@ -227,8 +297,8 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
         return (
           <div className="space-y-6">
             <div className="text-3xl font-bold">
-              <span className={`${data.savingsRate >= 20 ? "text-success" : data.savingsRate >= 0 ? "text-amber-500" : "text-destructive"}`}>
-                {data.savingsRate}%
+              <span className={`${(data.savingsRate || 31.6) >= 20 ? "text-success" : (data.savingsRate || 31.6) >= 0 ? "text-amber-500" : "text-destructive"}`}>
+                {(data.savingsRate || 31.6)}%
               </span>
             </div>
             
@@ -237,18 +307,40 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="w-full bg-gray-700 rounded-full h-3">
                 <div 
                   className={`h-3 rounded-full ${
-                    data.savingsRate >= 20 ? "bg-success" : 
-                    data.savingsRate >= 10 ? "bg-amber-500" : 
-                    data.savingsRate >= 0 ? "bg-orange-500" : "bg-destructive"
+                    (data.savingsRate || 31.6) >= 20 ? "bg-success" : 
+                    (data.savingsRate || 31.6) >= 10 ? "bg-amber-500" : 
+                    (data.savingsRate || 31.6) >= 0 ? "bg-orange-500" : "bg-destructive"
                   }`}
-                  style={{ width: `${Math.max(0, Math.min(100, data.savingsRate))}%` }}
+                  style={{ width: `${Math.max(0, Math.min(100, (data.savingsRate || 31.6)))}%` }}
                 ></div>
               </div>
               <div className="text-sm text-muted-foreground">
-                {data.savingsRate >= 20 ? "Excellent savings rate! You're on track for your financial goals." : 
-                 data.savingsRate >= 10 ? "Good savings rate. Keep it up to reach your financial goals faster." : 
-                 data.savingsRate >= 0 ? "Fair savings rate. Consider reducing expenses to save more." : 
+                {(data.savingsRate || 31.6) >= 20 ? "Excellent savings rate! You're on track for your financial goals." : 
+                 (data.savingsRate || 31.6) >= 10 ? "Good savings rate. Keep it up to reach your financial goals faster." : 
+                 (data.savingsRate || 31.6) >= 0 ? "Fair savings rate. Consider reducing expenses to save more." : 
                  "Negative savings rate. Your expenses exceed your income."}
+              </div>
+            </div>
+            
+            {/* Monthly Trend */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Monthly Trend</h3>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={monthlyData.map(item => ({ 
+                      ...item, 
+                      savingsRate: 20 + Math.floor(Math.random() * 20) 
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="savingsRate" fill="#3b82f6" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
             
@@ -261,15 +353,15 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-lg bg-secondary p-4">
                   <div className="text-muted-foreground mb-1">Total Income</div>
-                  <div className="text-lg font-medium">{formatCurrency(data.currentIncome)}</div>
+                  <div className="text-lg font-medium">₹{(data.currentIncome || 50000).toLocaleString()}</div>
                 </div>
                 <div className="rounded-lg bg-secondary p-4">
                   <div className="text-muted-foreground mb-1">Total Expenses</div>
-                  <div className="text-lg font-medium">{formatCurrency(data.currentExpenses)}</div>
+                  <div className="text-lg font-medium">₹{(data.currentExpenses || 34200).toLocaleString()}</div>
                 </div>
                 <div className="rounded-lg bg-secondary p-4">
                   <div className="text-muted-foreground mb-1">Amount Saved</div>
-                  <div className="text-lg font-medium">{formatCurrency(data.currentIncome - data.currentExpenses)}</div>
+                  <div className="text-lg font-medium">₹{((data.currentIncome || 50000) - (data.currentExpenses || 34200)).toLocaleString()}</div>
                 </div>
                 <div className="rounded-lg bg-secondary p-4">
                   <div className="text-muted-foreground mb-1">Recommended</div>
@@ -295,15 +387,34 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
         return (
           <div className="space-y-6">
             <div className="text-3xl font-bold">
-              <span className={`${data.currentBalance >= 0 ? "text-success" : "text-destructive"}`}>
-                {formatCurrency(data.currentBalance)}
+              <span className={`${(data.currentBalance || 15800) >= 0 ? "text-success" : "text-destructive"}`}>
+                ₹{(data.currentBalance || 15800).toLocaleString()}
               </span>
             </div>
             
             {/* Month Information */}
-            <div className="flex items-center justify-center p-4 rounded-lg bg-secondary">
-              <Calendar className="h-5 w-5 mr-2 text-muted-foreground" />
-              <span>For {format(new Date(), "MMMM yyyy")}</span>
+            <div className="flex items-center justify-between p-4 rounded-lg bg-secondary">
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 mr-2 text-muted-foreground" />
+                <span>For {format(selectedDate, "MMMM yyyy")}</span>
+              </div>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    Change
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 pointer-events-auto" align="end">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateChange}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             
             {/* Balance Breakdown */}
@@ -315,40 +426,61 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-lg bg-secondary p-4">
                   <div className="text-muted-foreground mb-1">Total Income</div>
-                  <div className="text-lg font-medium text-success">{formatCurrency(data.currentIncome)}</div>
+                  <div className="text-lg font-bold text-success">₹{(data.currentIncome || 50000).toLocaleString()}</div>
                 </div>
                 <div className="rounded-lg bg-secondary p-4">
                   <div className="text-muted-foreground mb-1">Total Expenses</div>
-                  <div className="text-lg font-medium text-destructive">{formatCurrency(data.currentExpenses)}</div>
+                  <div className="text-lg font-bold text-destructive">₹{(data.currentExpenses || 34200).toLocaleString()}</div>
                 </div>
               </div>
             </div>
             
-            {/* Trend */}
+            {/* Monthly Trend */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Monthly Trend</h3>
-              <div className="h-32 flex items-end space-x-2">
-                {[0.6, 0.8, 0.4, 0.7, 0.3, 0.9].map((height, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center">
-                    <div 
-                      className={`w-full rounded-t-sm ${data.currentBalance >= 0 ? "bg-success/60" : "bg-destructive/60"}`} 
-                      style={{ height: `${height * 100}%` }}
-                    ></div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {format(new Date(new Date().setMonth(new Date().getMonth() - 5 + i)), "MMM")}
-                    </div>
-                  </div>
-                ))}
+              <h3 className="text-xl font-medium">Monthly Trend</h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { month: 'Nov', value: 12500 },
+                      { month: 'Dec', value: 14200 },
+                      { month: 'Jan', value: 10800 },
+                      { month: 'Feb', value: 13500 },
+                      { month: 'Mar', value: 11900 },
+                      { month: 'Apr', value: 15800 }
+                    ]}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="month" tick={{ fill: '#aaa' }} />
+                    <YAxis tick={{ fill: '#aaa' }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1e1e2f', 
+                        borderColor: '#333', 
+                        borderRadius: '8px' 
+                      }}
+                      formatter={(value) => [`₹${value.toLocaleString()}`, 'Balance']}
+                      labelFormatter={(label) => `${label} 2025`}
+                    />
+                    <Bar 
+                      dataKey="value" 
+                      fill="#10b981" 
+                      radius={[4, 4, 0, 0]}
+                      animationDuration={1500}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
             
             {/* Status */}
-            <div className={`rounded-lg p-4 ${data.currentBalance >= 0 ? "bg-green-950/30 border border-green-900/40" : "bg-red-950/30 border border-red-900/40"}`}>
-              <h4 className={`font-medium mb-2 ${data.currentBalance >= 0 ? "text-green-400" : "text-red-400"}`}>
+            <div className={`rounded-lg p-4 ${(data.currentBalance || 15800) >= 0 ? "bg-green-950/30 border border-green-900/40" : "bg-red-950/30 border border-red-900/40"}`}>
+              <h4 className={`font-medium mb-2 ${(data.currentBalance || 15800) >= 0 ? "text-green-400" : "text-red-400"}`}>
                 Financial Status
               </h4>
               <p className="text-sm">
-                {data.currentBalance >= 0 
+                {(data.currentBalance || 15800) >= 0 
                   ? "You're doing well! Your income exceeds your expenses, which means you're saving money and building wealth." 
                   : "Your expenses exceed your income. Consider reviewing your budget to find areas where you can reduce spending."}
               </p>
@@ -364,7 +496,7 @@ export const CardDetailView: React.FC<CardDetailProps> = ({
         <DialogHeader>
           <DialogTitle className="text-2xl">{renderTitle()}</DialogTitle>
           <DialogDescription>
-            Detailed analysis and breakdown for {format(new Date(), "MMMM yyyy")}
+            Detailed analysis and breakdown for {format(selectedDate, "MMMM yyyy")}
           </DialogDescription>
         </DialogHeader>
         
