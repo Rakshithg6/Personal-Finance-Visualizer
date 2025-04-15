@@ -58,26 +58,6 @@ export const CategoryList: React.FC = () => {
     return null;
   };
 
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius * 1.1;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill={displayData[index].color} 
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central"
-        className="font-medium text-sm"
-      >
-        {`${name}: ${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -93,164 +73,162 @@ export const CategoryList: React.FC = () => {
 
       <Card className="glass-card">
         <CardContent className="pt-6">
-          <Tabs value={viewType} onValueChange={setViewType} className="mt-0">
-            <TabsContent value="pie">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2">
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                        <Pie
-                          data={displayData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          dataKey="value"
-                          labelLine={false}
-                          label={renderCustomizedLabel}
-                        >
-                          {displayData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend 
-                          layout="vertical"
-                          verticalAlign="middle"
-                          align="right" 
-                          formatter={(value) => (
-                            <span className="text-sm font-medium text-gray-300">{value}</span>
-                          )}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+          {viewType === "pie" && (
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <div className="lg:col-span-2">
+                <div className="h-[320px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={displayData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={120}
+                        dataKey="value"
+                        labelLine={false}
+                      >
+                        {displayData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend 
+                        layout="vertical"
+                        verticalAlign="middle"
+                        align="right" 
+                        formatter={(value) => (
+                          <span className="text-sm font-medium text-gray-300">{value}</span>
+                        )}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
+              </div>
 
-                <div className="lg:col-span-3">
-                  <div className="space-y-4">
-                    {displayData.map((category) => (
-                      <div
-                        key={category.id}
-                        className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
-                      >
-                        <div className="flex items-center">
-                          <div
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: category.color }}
-                          ></div>
-                          <span>{category.name}</span>
-                        </div>
-                        <div className="flex flex-col items-end">
-                          <span className="font-bold text-white">
-                            {formatCurrency(category.value)}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {Math.round((category.value / totalExpenses) * 100)}%
-                          </span>
-                        </div>
+              <div className="lg:col-span-3">
+                <div className="space-y-4">
+                  {displayData.map((category) => (
+                    <div
+                      key={category.id}
+                      className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <div
+                          className="w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: category.color }}
+                        ></div>
+                        <span>{category.name}</span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-white">
+                          {formatCurrency(category.value)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {Math.round((category.value / totalExpenses) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="donut">
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-2">
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={displayData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={90}
-                          paddingAngle={2}
-                          dataKey="value"
-                        >
-                          {displayData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                          <Label 
-                            position="center" 
-                            className="text-sm" 
-                            fill="#fff"
-                            value={`Total: ${formatCurrency(totalExpenses)}`} 
-                          />
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend 
-                          layout="vertical"
-                          verticalAlign="middle"
-                          align="right" 
-                          formatter={(value) => (
-                            <span className="text-sm font-medium text-gray-300">{value}</span>
-                          )}
+            </div>
+          )}
+          
+          {viewType === "donut" && (
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <div className="lg:col-span-2">
+                <div className="h-[320px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={displayData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {displayData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                        <Label 
+                          position="center" 
+                          fontSize={16}
+                          fontWeight="bold"
+                          fill="#fff"
+                          value={`Total: ${formatCurrency(totalExpenses)}`} 
                         />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend 
+                        layout="vertical"
+                        verticalAlign="middle"
+                        align="right" 
+                        formatter={(value) => (
+                          <span className="text-sm font-medium text-gray-300">{value}</span>
+                        )}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-                
-                <div className="lg:col-span-3">
-                  <div className="space-y-4">
-                    {displayData.map((category) => (
-                      <div
-                        key={category.id}
-                        className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
-                      >
-                        <div className="flex items-center">
-                          <div
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: category.color }}
-                          ></div>
-                          <span>{category.name}</span>
-                        </div>
-                        <div className="flex flex-col items-end">
-                          <span className="font-bold text-white">
-                            {formatCurrency(category.value)}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {Math.round((category.value / totalExpenses) * 100)}%
-                          </span>
-                        </div>
+              </div>
+              
+              <div className="lg:col-span-3">
+                <div className="space-y-4">
+                  {displayData.map((category) => (
+                    <div
+                      key={category.id}
+                      className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <div
+                          className="w-3 h-3 rounded-full mr-2"
+                          style={{ backgroundColor: category.color }}
+                        ></div>
+                        <span>{category.name}</span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-white">
+                          {formatCurrency(category.value)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {Math.round((category.value / totalExpenses) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="list">
-              <div className="space-y-4">
-                {displayData.map((category) => (
-                  <div
-                    key={category.id}
-                    className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
-                  >
-                    <div className="flex items-center">
-                      <div
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{ backgroundColor: category.color }}
-                      ></div>
-                      <span>{category.name}</span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="font-bold text-white">
-                        {formatCurrency(category.value)}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {Math.round((category.value / totalExpenses) * 100)}%
-                      </span>
-                    </div>
+            </div>
+          )}
+          
+          {viewType === "list" && (
+            <div className="space-y-4">
+              {displayData.map((category) => (
+                <div
+                  key={category.id}
+                  className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex items-center">
+                    <div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: category.color }}
+                    ></div>
+                    <span>{category.name}</span>
                   </div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
+                  <div className="flex flex-col items-end">
+                    <span className="font-bold text-white">
+                      {formatCurrency(category.value)}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.round((category.value / totalExpenses) * 100)}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

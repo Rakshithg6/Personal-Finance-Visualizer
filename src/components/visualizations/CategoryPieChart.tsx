@@ -63,26 +63,6 @@ export const CategoryPieChart: React.FC = () => {
     return null;
   };
 
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius * 1.1;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill={displayData[index].color} 
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central"
-        className="font-medium text-sm"
-      >
-        {`${name}: ${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
-
   return (
     <Card className="shadow-lg border-purple-900/50">
       <CardHeader className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 rounded-t-lg">
@@ -106,18 +86,17 @@ export const CategoryPieChart: React.FC = () => {
             <p className="text-muted-foreground">No spending data available</p>
           </div>
         ) : (
-          <Tabs value={viewType} onValueChange={setViewType}>
-            <TabsContent value="pie" className="mt-0">
+          <>
+            {viewType === "pie" && (
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart margin={{ top: 20, right: 50, bottom: 20, left: 50 }}>
+                  <PieChart>
                     <Pie
                       data={displayData}
                       cx="50%"
                       cy="50%"
-                      outerRadius={130}
+                      outerRadius={120}
                       dataKey="value"
-                      label={renderCustomizedLabel}
                       labelLine={false}
                     >
                       {displayData.map((entry, index) => (
@@ -126,29 +105,28 @@ export const CategoryPieChart: React.FC = () => {
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
                     <Legend 
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center" 
+                      layout="vertical"
+                      verticalAlign="middle"
+                      align="right" 
                       formatter={(value) => (
                         <span className="text-sm font-medium text-gray-300">{value}</span>
                       )}
-                      wrapperStyle={{ paddingTop: "20px" }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-            </TabsContent>
+            )}
             
-            <TabsContent value="donut" className="mt-0">
+            {viewType === "donut" && (
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart margin={{ top: 20, right: 50, bottom: 20, left: 50 }}>
+                  <PieChart>
                     <Pie
                       data={displayData}
                       cx="50%"
                       cy="50%"
                       innerRadius={80}
-                      outerRadius={130}
+                      outerRadius={120}
                       paddingAngle={2}
                       dataKey="value"
                       labelLine={false}
@@ -158,7 +136,8 @@ export const CategoryPieChart: React.FC = () => {
                       ))}
                       <Label 
                         position="center" 
-                        className="text-lg font-bold" 
+                        fontSize={16}
+                        fontWeight="bold"
                         fill="#fff"
                         value={`Total: ${formatCurrency(totalExpenses)}`} 
                       />
@@ -175,9 +154,9 @@ export const CategoryPieChart: React.FC = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-            </TabsContent>
+            )}
             
-            <TabsContent value="list" className="mt-0">
+            {viewType === "list" && (
               <div className="mt-4 space-y-3 max-h-[400px] overflow-auto pr-2">
                 {displayData.map((category) => (
                   <div 
@@ -200,8 +179,8 @@ export const CategoryPieChart: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </TabsContent>
-          </Tabs>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
